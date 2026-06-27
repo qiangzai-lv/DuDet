@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d1289eb3-f2d0-4fda-a8c0-2e6ca0967dde" name="Changes" comment="init" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "qiangzai-lv"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/qiangzai-lv/DuDet.git",
+    "accountId": "699d5323-d47c-4740-8618-a8df008e17a8"
+  }
+}]]></component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.4620069055533889" />
+      <entry key="MS500" value="3.1231569994623176" />
+      <entry key="S2" value="6.586871683318458" />
+      <entry key="S5" value="9.758375066790457" />
+      <entry key="S10" value="14.349803923370674" />
+      <entry key="S30" value="27.26360646689201" />
+      <entry key="S60" value="42.50297635853848" />
+      <entry key="M2" value="64.56711379963028" />
+      <entry key="M5" value="91.88165264203283" />
+      <entry key="M10" value="105.35606770883138" />
+      <entry key="M15" value="110.51431370977804" />
+      <entry key="M30" value="116.0518809382746" />
+      <entry key="H1" value="118.97256424006582" />
+      <entry key="H2" value="120.47267122194802" />
+      <entry key="H4" value="121.23289890519729" />
+      <entry key="D1" value="121.87166958344812" />
+      <entry key="W1" value="121.9816552843176" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="6.533258923388553E-114" />
+      <entry key="S2" value="5.055713644910238E-29" />
+      <entry key="S5" value="4.8030044280624154E-12" />
+      <entry key="S10" value="2.191575786520378E-6" />
+      <entry key="S30" value="0.012989292537292757" />
+      <entry key="S60" value="0.11397057750705995" />
+      <entry key="M2" value="0.33759528655930526" />
+      <entry key="M5" value="0.6476771117258323" />
+      <entry key="M10" value="0.8047838913185531" />
+      <entry key="M15" value="0.8652059882202381" />
+      <entry key="M30" value="0.9301644952481474" />
+      <entry key="H1" value="0.9644503591414888" />
+      <entry key="H2" value="0.9820643355409504" />
+      <entry key="H4" value="0.9909915920637001" />
+      <entry key="D1" value="0.9984929319388243" />
+      <entry key="W1" value="0.9997845653764427" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="1.3645831463389975" />
+      <entry key="MS500" value="3.080176882988018" />
+      <entry key="S2" value="6.563039124180483" />
+      <entry key="S5" value="9.744160534059956" />
+      <entry key="S10" value="14.339276911812172" />
+      <entry key="S30" value="27.269132834608058" />
+      <entry key="S60" value="42.60767611397219" />
+      <entry key="M2" value="64.8940086210076" />
+      <entry key="M5" value="92.52149320452502" />
+      <entry key="M10" value="106.15599625277513" />
+      <entry key="M15" value="111.37603873052504" />
+      <entry key="M30" value="116.98017263716157" />
+      <entry key="H1" value="119.93604305650648" />
+      <entry key="H2" value="121.45424072878005" />
+      <entry key="H4" value="122.22364078382128" />
+      <entry key="D1" value="122.87012057417391" />
+      <entry key="W1" value="122.98143385015986" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 1
+}]]></component>
+  <component name="ProjectId" id="3FfQL2nHdEmA9WuXTcNLR496BqJ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-c59985aa861c-c2ffad84badb-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.24374.152" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d1289eb3-f2d0-4fda-a8c0-2e6ca0967dde" name="Changes" comment="" />
+      <created>1782463584605</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1782463584605</updated>
+    </task>
+    <task id="LOCAL-00001" summary="init">
+      <option name="closed" value="true" />
+      <created>1782464565288</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1782464565288</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="init" />
+    <option name="LAST_COMMIT_MESSAGE" value="init" />
+  </component>
+</project>
