@@ -1,8 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import time
+from typing import List, Tuple
+
 import torch
-import torch.nn.functional as F
-from functools import partial
 from mmcv.cnn import Scale
 from mmcv.ops import nms3d, nms3d_normal
 from mmdet.models.utils import multi_apply
@@ -10,17 +9,23 @@ from mmdet.utils import reduce_mean
 # from mmengine.config import ConfigDict
 from mmengine.model import BaseModule, bias_init_with_prob, normal_init
 from mmengine.structures import InstanceData
-from scipy.optimize import linear_sum_assignment
 from torch import Tensor, nn
-from typing import List, Tuple
 
 from mmdet3d.registry import MODELS, TASK_UTILS
+from mmdet3d.structures.bbox_3d.utils import rotation_3d_in_axis
 from mmdet3d.structures.det3d_data_sample import SampleList
-from mmdet3d.structures.ops.iou3d_calculator import axis_aligned_bbox_overlaps_3d
 from mmdet3d.utils.typing_utils import (ConfigType, InstanceList,
                                         OptConfigType, OptInstanceList)
+from functools import partial
 from projects.VGGTDet.detr3_models.helpers import GenericMLP
-from projects.VGGTDet.detr3_models.utils.votenet_pc_util import write_ply_rgb, write_bbox
+from projects.VGGTDet.detr3_models.utils.box_util import get_3d_box_batch_depth_tensor, generalized_box3d_iou
+from scipy.optimize import linear_sum_assignment
+import torch.nn.functional as F
+
+import time
+from projects.VGGTDet.detr3_models.utils.votenet_pc_util import write_oriented_bbox, write_ply, write_ply_rgb, write_bbox
+from mmdet3d.structures.ops.iou3d_calculator import axis_aligned_bbox_overlaps_3d
+
 
 
 @torch.no_grad()
@@ -188,21 +193,15 @@ class VGGTDetHead(BaseModule):
         Returns:
             tuple[Tensor]: Centerness, bbox and classification predictions.
         """
-        can_project_to_scene = (
-            pose_matrix is not None
-            and axis_align_matrix is not None
-            and self.if_project_frist_frame_back
-        )
-
-        if self.learn_center_diff and query_xyz is not None:
+        if self.learn_center_diff:
             query_xyz = query_xyz.permute(0, 2, 1)
-            if can_project_to_scene:
+            if self.if_project_frist_frame_back:
                 center_pred = self.project_the_first_frame_back(self.center_head(x)+query_xyz, pose_matrix, axis_align_matrix)
             else:
                 center_pred = self.center_head(x)+query_xyz
 
         else:
-            if can_project_to_scene:
+            if self.if_project_frist_frame_back:
                 center_pred = self.project_the_first_frame_back(self.center_head(x), pose_matrix, axis_align_matrix)
             else:
                 center_pred = self.center_head(x)
@@ -212,13 +211,10 @@ class VGGTDetHead(BaseModule):
                 self.semcls_head(x)) # , self.objness_head(x)
 
     def forward(self, x, batch_inputs_dict, batch_data_samples):
-        pose_matrix = batch_inputs_dict.get('pose_matrix', None)
-        axis_align_matrix = batch_inputs_dict.get('axis_align_matrix', None)
-        avg_distance = batch_inputs_dict.get('avg_distance', None)
         if 'query_xyz' in batch_inputs_dict.keys():
-            return multi_apply(self._forward_single, x, self.scales, [batch_inputs_dict['query_xyz'] for _ in range(self.n_levels)], [pose_matrix for _ in range(self.n_levels)], [axis_align_matrix for _ in range(self.n_levels)], [avg_distance for _ in range(self.n_levels)]) 
+            return multi_apply(self._forward_single, x, self.scales, [batch_inputs_dict['query_xyz'] for _ in range(self.n_levels)], [batch_inputs_dict['pose_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['axis_align_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['avg_distance'] for _ in range(self.n_levels)]) 
         else:
-            return multi_apply(self._forward_single, x, self.scales, [None for _ in range(self.n_levels)], [pose_matrix for _ in range(self.n_levels)], [axis_align_matrix for _ in range(self.n_levels)], [avg_distance for _ in range(self.n_levels)]) 
+            return multi_apply(self._forward_single, x, self.scales, [None for _ in range(self.n_levels)], [batch_inputs_dict['pose_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['axis_align_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['avg_distance'] for _ in range(self.n_levels)]) 
 
     def loss(self, x: Tuple[Tensor], batch_data_samples: SampleList, batch_inputs_dict: dict,
              **kwargs) -> dict:
@@ -386,10 +382,46 @@ class VGGTDetHead(BaseModule):
         matched_gt_sizes = gt_sizes[gt_indices]
         matched_gt_labels = gt_labels[gt_indices]
 
+
+
+        # #########################debug
+        # # if self.visualize_3d_bbox:
+        # # gt_boxes = data_samples.gt_instances_3d.bboxes_3d
+        # pred_boxes = torch.cat(
+        # scene_path = input_meta['img_path'][0].split('/')[-2]
+
+        # gt_boxes = torch.cat(
+        #     (matched_gt_centers, matched_gt_sizes), dim=1)
+        # # max_giou, max_gt_box_idx, max_pred_box_idx = self.find_max_iou_from_center_size_boxes(bboxes_after_nms, gt_boxes)
+        # # if isinstance(max_pred_box_idx, torch.Tensor):
+        #     # max_pred_box_idx = max_pred_box_idx.item()
+        # write_bbox(pred_boxes.detach().cpu().numpy(), self.visualize_path+'/'+'%s_match_pred_boxes.ply' % scene_path)
+        
+        # write_bbox(gt_boxes.detach().cpu().numpy(), self.visualize_path+'/'+'%s_match_gt_boxes.ply' % scene_path)
+
+
+        # # write_bbox(gt_boxes[max_gt_box_idx_tmp].unsqueeze(0).cpu().numpy(), self.visualize_path+'/'+'%s_max_iou_gt_boxes.ply' % scene_path)
+
+        # # write_bbox(bboxes_after_nms.cpu().numpy(), self.visualize_path+'/'+'%s_pred_boxes.ply' % scene_path)
+        # # write_bbox(bboxes_after_nms[max_pred_box_idx].unsqueeze(0).cpu().numpy(), self.visualize_path+'/'+'%s_max_iou_%f_boxes.ply' % (scene_path, max_giou))
+        # if input_points is not None:
+        #     write_ply_rgb(input_points.detach().cpu().numpy(), self.visualize_path+'/'+'%s_gt_points.ply' % scene_path)
+
+        # #########################debug
+
+
+
+
+        # time3 = time.time()
+        # a = gt_sizes.cpu()
+
         center_loss = F.l1_loss(matched_centers, matched_gt_centers) * self.loss_weights['center_loss']
         
         size_loss = F.l1_loss(matched_sizes, matched_gt_sizes) * self.loss_weights['size_loss']
         
+
+        # time4 = time.time()
+        # a = gt_sizes.cpu()
         cls_target = torch.ones((all_centers.shape[0]), device=all_centers.device) * self.n_classes
         cls_target = cls_target.long()
         cls_target[pred_indices] = matched_gt_labels
@@ -397,12 +429,63 @@ class VGGTDetHead(BaseModule):
 
         cls_loss = self.cls_loss(all_cls, cls_target) * self.loss_weights['cls_loss']
 
+
+        # cls_targets_onehot = F.one_hot(
+        #     matched_gt_labels, 
+        #     num_classes=self.n_classes
+        # ).float()
+
+        # cls_loss = self.cls_loss(
+        #     matched_cls, 
+        #     cls_targets_onehot, avg_factor = (matched_cls.shape[0]+ 1e-16)
+        # )  * self.loss_weights['cls_loss']
+        
+        # objness_target = torch.zeros_like(all_objness)
+        # objness_target[pred_indices] = 1.0
+        # objness_loss_weight = torch.ones_like(all_objness) * self.loss_weights['not_objness_loss']
+        # objness_loss_weight[pred_indices] = self.loss_weights['objness_loss']
+
+        # objness_loss_all = self.objness_loss(
+        #     all_objness,  # (N,1)
+        #     objness_target,  # (N,1)
+        #     # avg_factor=matched_cls.shape[0],
+        #     reduction_override='none'
+        # )   * objness_loss_weight
+        # objness_loss = torch.sum(objness_loss_all) / (torch.sum(objness_loss_weight) + 1e-16)
+
+        # time5 = time.time()
+        # a = gt_sizes.cpu()
+
+
         pred_tp_bbox = self._center_size_pred_to_bbox(matched_centers, matched_sizes)
         gt_tp_bbox = self._center_size_pred_to_bbox(matched_gt_centers, matched_gt_sizes)
 
         giou = axis_aligned_bbox_overlaps_3d(pred_tp_bbox.unsqueeze(0), gt_tp_bbox.unsqueeze(0), mode='giou', is_aligned=True)
 
+        # pred_corners = get_3d_box_batch_depth_tensor(
+        #     matched_sizes.unsqueeze(0),
+        #     torch.zeros(1, len(pred_indices), device=all_centers.device),
+        #     matched_centers.unsqueeze(0)
+        # )
+        # gt_corners = get_3d_box_batch_depth_tensor(
+        #     matched_gt_sizes.unsqueeze(0),
+        #     torch.zeros(1, len(gt_indices), device=all_centers.device),
+        #     matched_gt_centers.unsqueeze(0)
+        # )
+
+        # giou = generalized_box3d_iou(pred_corners, gt_corners, torch.tensor([len(gt_indices)]), rotated_boxes=(torch.sum(torch.abs(gt_bboxes.tensor[:, -1])) > 1e-16), needs_grad=(self.loss_weights['iou_loss'] > 0))
         giou_loss = (1.0 - giou).mean() * self.loss_weights['iou_loss']
+
+        # time7 = time.time()
+        # a = gt_sizes.cpu()
+
+        # print('---------time------------')
+        # print(time2-time1)
+        # print(time3-time2)
+        # print(time4-time3)
+        # print(time5-time4)
+        # print(time6-time5)
+        # print(time7-time6)
 
         return center_loss, size_loss, cls_loss, giou_loss
 
@@ -502,6 +585,25 @@ class VGGTDetHead(BaseModule):
         Returns:
             tuple[Tensor]: Predicted bounding boxes, scores and labels.
         """
+        # all_centers = torch.cat([c.t() for c in center_preds], dim=0)  # (Total_Pred, 3)
+        # all_sizes = torch.cat([s.t() for s in size_preds], dim=0)      # (Total_Pred, 3) 
+        # all_cls = torch.cat([c.t() for c in cls_preds], dim=0)         # (Total_Pred, C)
+        # all_objness = torch.cat([c.t() for c in objness_preds], dim=0)
+    
+        # featmap_sizes = [featmap.size()[-3:] for featmap in center_preds]
+        # points = self._get_points(
+        #     featmap_sizes=featmap_sizes,
+        #     origin=input_meta['lidar2img']['origin'],
+        #     device=center_preds[0].device)
+        
+        # for center_pred, size_pred, cls_pred, objness_pred in zip(
+        #         center_preds, size_preds, cls_preds, objness_preds):
+        #     center_pred = center_pred.permute(1, 2, 3, 0).reshape(-1, 1)
+        #     bbox_pred = bbox_pred.permute(1, 2, 3,
+        #                                   0).reshape(-1, bbox_pred.shape[0])
+        #     cls_pred = cls_pred.permute(1, 2, 3,
+        #                                 0).reshape(-1, cls_pred.shape[0])
+        #     valid_pred = valid_pred.permute(1, 2, 3, 0).reshape(-1, 1)
 
         mlvl_bboxes, mlvl_scores = [], []
         for stage_idx in range(len(center_preds)):
@@ -538,6 +640,11 @@ class VGGTDetHead(BaseModule):
         results.scores_3d = scores
         results.labels_3d = labels
 
+        # results = InstanceData()
+        # results.bboxes_3d = data_samples.gt_instances_3d.bboxes_3d
+        # results.scores_3d = torch.ones_like(data_samples.gt_instances_3d.labels_3d)
+        # results.labels_3d = data_samples.gt_instances_3d.labels_3d
+
         if self.visualize_3d_bbox:
             gt_boxes = data_samples.gt_instances_3d.bboxes_3d
             gt_boxes = torch.cat(
@@ -565,6 +672,23 @@ class VGGTDetHead(BaseModule):
 
 
     def find_max_iou_from_center_size_boxes(self, boxes1, boxes2):
+        # pred_corners = get_3d_box_batch_depth_tensor(
+        #     boxes1[:, :3].unsqueeze(0),
+        #     torch.zeros(1, boxes1.shape[0], device=boxes1.device),
+        #     boxes1[:, 3:6].unsqueeze(0)
+        # )
+        # gt_corners = get_3d_box_batch_depth_tensor(
+        #     boxes2[:, :3].unsqueeze(0),
+        #     torch.zeros(1, boxes2.shape[0], device=boxes1.device),
+        #     boxes2[:, 3:6].unsqueeze(0)
+        # )
+
+        # time6 = time.time()
+        # a = gt_sizes.cpu()
+        # giou = generalized_box3d_iou(pred_corners, gt_corners, torch.tensor([boxes1.shape[0]]), rotated_boxes=False, needs_grad=False)
+        # giou_max_gt, max_gt_box_idx = torch.max(giou, axis=2)
+        # max_giou, max_pred_box_idx = torch.max(giou_max_gt, axis=1)
+
         boxes1_tp = self._center_size_pred_to_bbox(boxes1[:, :3], boxes1[:, 3:6])
         boxes2_tp = self._center_size_pred_to_bbox(boxes2[:, :3], boxes2[:, 3:6])
         giou_2 = axis_aligned_bbox_overlaps_3d(boxes1_tp.unsqueeze(0), boxes2_tp.unsqueeze(0), mode='giou') # giou
@@ -663,6 +787,96 @@ class VGGTDetHead(BaseModule):
             z_dims.min(dim=-1)[0] / z_dims.max(dim=-1)[0]
         return torch.sqrt(centerness_targets)
 
+    # @torch.no_grad()
+    # def _get_targets(self, center_preds, size_preds, cls_preds, objness_preds, gt_bboxes, gt_labels):
+    #     """Compute targets for final locations for a single scene.
+
+    #     Args:
+    #         points (list[Tensor]): Final locations for all levels.
+    #         gt_bboxes (BaseInstance3DBoxes): Ground truth boxes.
+    #         gt_labels (Tensor): Ground truth labels.
+
+    #     Returns:
+    #         tuple[Tensor]: Centerness, bbox and classification
+    #             targets for all locations.
+    #     """
+    #     float_max = 1e8
+    #     expanded_scales = [
+    #         points[i].new_tensor(i).expand(len(points[i])).to(gt_labels.device)
+    #         for i in range(len(points))
+    #     ]
+    #     points = torch.cat(points, dim=0).to(gt_labels.device) # (N1+N2+N3, 3)
+    #     scales = torch.cat(expanded_scales, dim=0)
+
+    #     # below is based on FCOSHead._get_target_single
+    #     n_points = len(points)
+    #     n_boxes = len(gt_bboxes)
+    #     volumes = gt_bboxes.volume.to(points.device)
+    #     volumes = volumes.expand(n_points, n_boxes).contiguous()
+    #     gt_bboxes = torch.cat(
+    #     gt_bboxes = gt_bboxes.to(points.device).expand(n_points, n_boxes, 6)
+    #     expanded_points = points.unsqueeze(1).expand(n_points, n_boxes, 3)
+    #     bbox_targets = self._get_face_distances(expanded_points, gt_bboxes) # (N1+N2+N3, n_bbox, 6) each point to bbox's 6 faces distance.
+
+    #     # condition1: inside a gt bbox
+    #     inside_gt_bbox_mask = bbox_targets[..., :6].min(
+    #         -1)[0] > 0  # skip angle
+
+    #     # condition2: positive points per scale >= limit
+    #     # calculate positive points per scale
+    #     n_pos_points_per_scale = []
+    #     for i in range(self.n_levels):
+    #         n_pos_points_per_scale.append(
+    #             torch.sum(inside_gt_bbox_mask[scales == i], dim=0))
+    #     # find best scale
+    #     n_pos_points_per_scale = torch.stack(n_pos_points_per_scale, dim=0) # (3, n_bbox). 3scales. each scale, how many points fit in each bbox
+    #     lower_limit_mask = n_pos_points_per_scale < self.pts_assign_threshold
+    #     # fix nondeterministic argmax for torch<1.7
+    #     extra = torch.arange(self.n_levels, 0, -1).unsqueeze(1).expand(
+    #         self.n_levels, n_boxes).to(lower_limit_mask.device)
+    #     lower_index = torch.argmax(lower_limit_mask.int() * extra, dim=0) - 1
+    #     lower_index = torch.where(lower_index < 0,
+    #                               torch.zeros_like(lower_index), lower_index)
+    #     all_upper_limit_mask = torch.all(
+    #         torch.logical_not(lower_limit_mask), dim=0)
+    #     best_scale = torch.where(
+    #         all_upper_limit_mask,
+    #         torch.ones_like(all_upper_limit_mask) * self.n_levels - 1,
+    #         lower_index)
+    #     # keep only points with best scale
+    #     best_scale = torch.unsqueeze(best_scale, 0).expand(n_points, n_boxes)
+    #     scales = torch.unsqueeze(scales, 1).expand(n_points, n_boxes)
+    #     inside_best_scale_mask = best_scale == scales
+
+    #     # condition3: limit topk locations per box by centerness
+    #     centerness = self._get_centerness(bbox_targets) # (N1+N2+N3, n_bbox)
+    #     centerness = torch.where(inside_gt_bbox_mask, centerness,
+    #                              torch.ones_like(centerness) * -1)
+    #     centerness = torch.where(inside_best_scale_mask, centerness,
+    #                              torch.ones_like(centerness) * -1)
+    #     top_centerness = torch.topk(
+    #         centerness, self.pts_center_threshold + 1, dim=0).values[-1]
+    #     inside_top_centerness_mask = centerness > top_centerness.unsqueeze(0)
+
+    #     # if there are still more than one objects for a location,
+    #     # we choose the one with minimal area
+    #     volumes = torch.where(inside_gt_bbox_mask, volumes,
+    #                           torch.ones_like(volumes) * float_max)
+    #     volumes = torch.where(inside_best_scale_mask, volumes,
+    #                           torch.ones_like(volumes) * float_max)
+    #     volumes = torch.where(inside_top_centerness_mask, volumes,
+    #                           torch.ones_like(volumes) * float_max)
+    #     min_area, min_area_inds = volumes.min(dim=1)
+
+    #     labels = gt_labels[min_area_inds]
+    #     labels = torch.where(min_area == float_max,
+    #                          torch.ones_like(labels) * -1, labels)
+    #     bbox_targets = bbox_targets[range(n_points), min_area_inds]
+    #     centerness_targets = self._get_centerness(bbox_targets)
+
+    #     return centerness_targets, self._bbox_pred_to_bbox(
+    #         points, bbox_targets), labels
+
     def _nms(self, bboxes, scores, img_meta): # bbox is 6-dim. (x_min, y_min, z_min, x_max, y_max, z_max)
         scores, labels = scores.max(dim=1)
         ids = scores > self.test_cfg.score_thr
@@ -753,6 +967,17 @@ class UnifiedMatcher(nn.Module):
             pred_indices: 匹配的预测索引
             gt_indices: 匹配的真实索引
         """
+        # pred_corners = get_3d_box_batch_depth_tensor(
+        #     all_sizes.unsqueeze(0), 
+        #     torch.zeros(1, all_centers.size(0), device=all_centers.device),
+        #     all_centers.unsqueeze(0)
+        # )  # (1, Total_Pred, 8, 3)
+
+        # gt_corners = get_3d_box_batch_depth_tensor(
+        #     gt_sizes.unsqueeze(0),
+        #     torch.zeros(1, gt_centers.size(0), device=gt_centers.device),
+        #     gt_centers.unsqueeze(0)
+        # )  # (1, M, 8, 3)
 
         if all_objness.dim() == 1:
             all_objness = all_objness.unsqueeze(-1) 
@@ -875,6 +1100,7 @@ class UnifiedMatcherMoreThanOne(nn.Module):
             centers[:, 1] + sizes[:, 1]/2.0, centers[:, 2] + sizes[:, 2]/2.0
         ], -1)
     
+
 
 
 

@@ -81,7 +81,7 @@ model = dict(
         ),
         learn_center_diff=True,
         if_v2_head=True,
-        if_project_frist_frame_back=False,
+        if_project_frist_frame_back=True,
         visualize_path='vis_dir/',
         matcher='one2more',
         matcher_iou_thres=0.1,
@@ -90,17 +90,17 @@ model = dict(
     num_queries=256,
     token_dim=_token_dim_,
     test_only_last_layer=True,
-    if_learnable_query=True,
+    if_learnable_query=False,
     if_use_gt_query=False,
     if_mix_precision=True,
     use_multi_layers=True,
     if_simpler_project=True,
-    if_use_pred_pc_query=False,
+    if_use_pred_pc_query=True,
     if_use_atten_sample=False,
     atten_sample_ratio=10,
-    if_use_atten_fps=False,
+    if_use_atten_fps=True,
     lambda_dist=0.8,
-    if_task_query=False
+    if_task_query=True
     )
 
 dataset_type = 'MultiViewScanNetDataset'
@@ -124,7 +124,7 @@ backend_args = None
 train_collect_keys = [
     'img', 'gt_bboxes_3d', 'gt_labels_3d', 'lightpos', 'nerf_sizes', 'raydirs',
     'gt_images',  'denorm_images',
-    'c2w', 'intrinsic'
+    'c2w', 'intrinsic', 'points', 'pose_matrix', 'axis_align_matrix', 'avg_distance'
     ] # here add depth will load depth as input
 
 test_collect_keys = [
@@ -134,7 +134,7 @@ test_collect_keys = [
     'raydirs',
     'gt_images',
     'denorm_images',
-    'c2w', 'intrinsic', 'gt_bboxes_3d', 'gt_labels_3d'
+    'c2w', 'intrinsic', 'points', 'gt_bboxes_3d', 'gt_labels_3d', 'pose_matrix', 'axis_align_matrix', 'avg_distance'
 ]
 
 # if use_depth == True:
@@ -142,8 +142,21 @@ test_collect_keys = [
 #     test_collect_keys.append('depth')
 
 
+n_points = 100000
+
 train_pipeline = [
+    dict(
+        type='LoadPointsFromFile',
+        coord_type='DEPTH',
+        shift_height=False,
+        use_color=True,
+        load_dim=6,
+        use_dim=[0, 1, 2, 3, 4, 5],
+        backend_args=backend_args,
+        data_root=data_root),
     dict(type='LoadAnnotations3D'),
+    # dict(type='GlobalAlignment', rotation_axis=2),
+    dict(type='PointSample', num_points=n_points),
     dict(
         type='MultiViewPipeline_Tgt',
         n_images=42,
@@ -163,12 +176,24 @@ train_pipeline = [
         ]
         ),
     dict(type='RandomShiftOrigin', std=(.7, .7, .0)),
+    dict(type='ProjectPCtoFirstFrameAndNorm', coord_type='DEPTH'),
     # dict(type='NormBoxes'),
     dict(type='PackNeRFDetInputs', keys=train_collect_keys)
 ]
 
 test_pipeline = [
+    dict(
+        type='LoadPointsFromFile',
+        coord_type='DEPTH',
+        shift_height=False,
+        use_color=True,
+        load_dim=6,
+        use_dim=[0, 1, 2, 3, 4, 5],
+        backend_args=backend_args,
+        data_root=data_root),
     dict(type='LoadAnnotations3D'),
+    # dict(type='GlobalAlignment', rotation_axis=2),
+    dict(type='PointSample', num_points=n_points),
     dict(
         type='MultiViewPipeline_Tgt',
         n_images=81,
@@ -187,6 +212,7 @@ test_pipeline = [
             dict(type='Resize', scale=(448, 448), keep_ratio=True, interpolation='bicubic'),
         ]
         ),
+    dict(type='ProjectPCtoFirstFrameAndNorm', coord_type='DEPTH'),
     # dict(type='NormBoxes'),
     dict(type='PackNeRFDetInputs', keys=test_collect_keys)
 ]

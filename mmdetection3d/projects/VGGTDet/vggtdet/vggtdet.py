@@ -4,36 +4,32 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from contextlib import nullcontext
 
 from mmdet3d.models.detectors import Base3DDetector
 from mmdet3d.registry import MODELS, TASK_UTILS
 from mmdet3d.structures.det3d_data_sample import SampleList
 from mmdet3d.utils import ConfigType, OptConfigType
 
-from projects.VGGTDet.vggtdet.vggt.models.vggt import VGGT
+from vggt.models.vggt import VGGT
+from vggt.utils.load_fn import load_and_preprocess_images
 
-from projects.VGGTDet.detr3_models.transformer import (TransformerDecoder, TransformerDecoder_Multilevel,
-                                                       TransformerDecoderLayer)
+from projects.VGGTDet.detr3_models.transformer import (MaskedTransformerEncoder, TransformerDecoder, TransformerDecoder_Multilevel,
+                                TransformerDecoderLayer, TransformerEncoder,
+                                TransformerEncoderLayer, TransformerEncoderEveryLayer, TransformerCrossEncoder, TransformerSharedAttentionDecoderLayer, TransformerSharedAttentionDecoder, TransformerGuidenceSharedAttentionDecoderLayer)
 
+
+from projects.VGGTDet.detr3_models.third_party_pointnet2.pointnet2.pointnet2_utils import furthest_point_sample
 
 from projects.VGGTDet.detr3_models.helpers import GenericMLP
 from projects.VGGTDet.detr3_models.position_embedding import PositionEmbeddingCoordsSine
 import numpy as np
+from vggt.utils.pose_enc import pose_encoding_to_extri_intri
+from vggt.utils.geometry import unproject_depth_map_to_point_map, unproject_depth_map_to_point_map_torch
+from projects.VGGTDet.detr3_models.utils.votenet_pc_util import write_oriented_bbox, write_ply, write_ply_rgb, write_bbox
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 # bfloat16 is supported on Ampere GPUs (Compute Capability 8.0+) 
-vggt_dtype = (
-    torch.bfloat16
-    if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8
-    else torch.float16
-)
-
-
-def vggt_autocast():
-    if torch.cuda.is_available():
-        return torch.cuda.amp.autocast(dtype=vggt_dtype)
-    return nullcontext()
+vggt_dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
 
 
 class LearnableQueries(nn.Module):
@@ -80,6 +76,16 @@ class ChannelProjecter(nn.Module):
                             ),
             nn.GroupNorm(num_groups=1, num_channels=in_channels//2),
             nn.GELU(),
+
+            # nn.Conv2d(
+            #         in_channels=in_channels//2,
+            #         out_channels=in_channels//4,
+            #         kernel_size=1,
+            #         stride=1,
+            #         padding=0
+            #                 ),
+            # nn.GroupNorm(num_groups=1, num_channels=in_channels//4),
+            # nn.GELU(),
 
             nn.Conv2d(
                     in_channels=in_channels//2,
@@ -177,6 +183,13 @@ class VGGTDet(Base3DDetector):
 
         self.decoder = build_decoder(decoder_cfg, if_multilevel=use_multi_layers)
 
+        # self.proj_feat_dim = nn.Conv2d(
+        #             in_channels=2048,
+        #             out_channels=token_dim,
+        #             kernel_size=1,
+        #             stride=1,
+        #             padding=0
+        #         )
         if if_simpler_project:
             if use_multi_layers: 
                 self.proj_feat_dim0 = nn.Conv2d(
@@ -297,7 +310,7 @@ class VGGTDet(Base3DDetector):
             self.vggt_encoder.eval()
 
         with torch.no_grad():
-            with vggt_autocast():
+            with torch.cuda.amp.autocast(dtype=vggt_dtype):
                 img = batch_inputs_dict['imgs'] # (bs, 40, 3, 392, 518)
                 img = img.float()
                 batch_img_metas = [
@@ -347,11 +360,9 @@ class VGGTDet(Base3DDetector):
     @torch.no_grad()
     def pred_pc_from_vggt(self, aggregated_tokens_list_ori, ps_idx, images, batch_inputs_dict, images_patch_attn):
         # assert self.vggt_encoder.training==False
-        from projects.VGGTDet.vggtdet.vggt.utils.geometry import unproject_depth_map_to_point_map_torch
-        from projects.VGGTDet.vggtdet.vggt.utils.pose_enc import pose_encoding_to_extri_intri
 
         with torch.no_grad():
-            with vggt_autocast(): 
+            with torch.cuda.amp.autocast(dtype=vggt_dtype): 
                 if not aggregated_tokens_list_ori[0].is_contiguous():
                     aggregated_tokens_list = [i.contiguous() for i in aggregated_tokens_list_ori]
                     del aggregated_tokens_list_ori
@@ -367,6 +378,26 @@ class VGGTDet(Base3DDetector):
                 
                 depth_map, depth_conf = self.vggt_encoder.depth_head(aggregated_tokens_list, images, ps_idx)
                 del aggregated_tokens_list
+
+                # point_map_by_unprojection = unproject_depth_map_to_point_map(depth_map[9], 
+                #                                                 extrinsic[9], 
+                #                                                 intrinsic[9])
+
+                # point_map_by_unprojection = point_map_by_unprojection.reshape(-1, point_map_by_unprojection.shape[-1])[np.newaxis, :, :]  
+
+
+                # point_map_by_unprojection2 = unproject_depth_map_to_point_map(depth_map[3], 
+                #                                                 extrinsic[3], 
+                #                                                 intrinsic[3])
+
+                # point_map_by_unprojection2 = point_map_by_unprojection2.reshape(-1, point_map_by_unprojection.shape[-1])[np.newaxis, :, :]  
+
+
+                # point_map_by_unprojection3 = unproject_depth_map_to_point_map(depth_map[12], 
+                #                                                 extrinsic[12],
+                #                                                 intrinsic[12])
+
+                # point_map_by_unprojection3 = point_map_by_unprojection3.reshape(-1, point_map_by_unprojection.shape[-1])[np.newaxis, :, :]  
 
                 assert depth_map.shape[-1] == 1
                 depth_map = depth_map.squeeze(-1)
@@ -685,8 +716,6 @@ class VGGTDet(Base3DDetector):
         return results
 
     def get_query_embeddings(self, encoder_xyz, point_cloud_dims):
-        from projects.VGGTDet.detr3_models.third_party_pointnet2.pointnet2.pointnet2_utils import furthest_point_sample
-
         query_inds = furthest_point_sample(encoder_xyz, self.num_queries)
         query_inds = query_inds.long()
         query_xyz = [torch.gather(encoder_xyz[..., x], 1, query_inds) for x in range(3)]
@@ -795,3 +824,5 @@ def build_decoder(args, if_multilevel=False):
             decoder_layer, num_layers=args.dec_nlayers, return_intermediate=True
         )
     return decoder
+
+
