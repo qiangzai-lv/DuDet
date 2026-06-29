@@ -4,7 +4,7 @@ _base_ = ['./vggt_res50_2x_low_res_depth.py']
 resume = True
 
 custom_imports = dict(
-    imports=['projects.VGGTDet.vggtdet', 'mmdet3d.evaluation.metrics.Indoor_NVS'],
+    imports=['projects.VGGTDet.vggtdet'],
     allow_failed_imports=False)
 
 prior_generator = dict(
@@ -137,11 +137,6 @@ test_collect_keys = [
     'c2w', 'intrinsic', 'points', 'gt_bboxes_3d', 'gt_labels_3d', 'pose_matrix', 'axis_align_matrix', 'avg_distance'
 ]
 
-# if use_depth == True:
-#     train_collect_keys.append('depth')
-#     test_collect_keys.append('depth')
-
-
 n_points = 100000
 
 train_pipeline = [
@@ -264,14 +259,6 @@ train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=_max_epoch, val_interval
 test_cfg = dict()
 val_cfg = dict()
 
-# optim_wrapper = dict(
-#     type='OptimWrapper',
-#     optimizer=dict(type='AdamW', lr=0.0002, weight_decay=0.0001),
-#     paramwise_cfg=dict(
-#         custom_keys={'backbone': dict(lr_mult=0.1, decay_mult=1.0)}),
-#     clip_grad=dict(max_norm=35., norm_type=2))
-
-
 optim_wrapper = dict(
     type='OptimWrapper',
     optimizer=dict(
@@ -284,13 +271,7 @@ optim_wrapper = dict(
 
 
 param_scheduler = [
-    # dict(
-    #     type='LinearLR',
-    #     start_factor=1,  # 0.002
-    #     end_factor=1e-6 / 5e-4,
-    #     by_epoch=True,
-    #     begin=0,
-    # ),
+
     dict(
         type='CosineAnnealingLR',
         T_max=_max_epoch-1,  # max_epochs - 1
