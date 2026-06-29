@@ -9,19 +9,13 @@
 
 import logging
 import os
-from typing import Optional
 import warnings
 
 from torch import Tensor
 from torch import nn
+from torch import softmax
 import torch.nn.functional as F
 import torch
-
-try:
-    import torch_npu
-except ImportError:
-    torch_npu = None
-
 XFORMERS_AVAILABLE = False
 
 
@@ -29,55 +23,12 @@ def is_npu_tensor(x: Tensor) -> bool:
     return x.device.type == "npu"
 
 
-def attention_probs(q: Tensor, k: Tensor, scale: float, attn_drop: nn.Dropout, training: bool) -> Tensor:
+def manual_attention(q: Tensor, k: Tensor, v: Tensor, scale: float, attn_drop: nn.Dropout, training: bool) -> Tensor:
     q = q * scale
     attn = q @ k.transpose(-2, -1)
     attn = attn.softmax(dim=-1)
-    return attn_drop(attn) if training else attn
-
-
-def manual_attention(q: Tensor, k: Tensor, v: Tensor, scale: float, attn_drop: nn.Dropout, training: bool) -> Tensor:
-    return attention_probs(q, k, scale, attn_drop, training) @ v
-
-
-def npu_fused_attention(
-    q: Tensor,
-    k: Tensor,
-    v: Tensor,
-    scale: float,
-    dropout_p: float,
-    training: bool,
-) -> Optional[Tensor]:
-    if torch_npu is None or not is_npu_tensor(q):
-        return None
-    if training and dropout_p > 0.0:
-        return None
-    if q.shape[-1] < v.shape[-1]:
-        return None
-
-    num_heads = q.shape[1]
-    num_key_value_heads = k.shape[1]
-    if num_heads == num_key_value_heads:
-        num_key_value_heads = 0
-
-    try:
-        out = torch_npu.npu_fused_infer_attention_score(
-            q,
-            k,
-            v,
-            num_heads=num_heads,
-            scale=float(scale),
-            input_layout="BNSD",
-            num_key_value_heads=num_key_value_heads,
-            pre_tokens=65535,
-            next_tokens=65535,
-            sparse_mode=0,
-            inner_precise=0,
-        )[0]
-    except RuntimeError as exc:
-        logging.warning("NPU fused attention failed, falling back to manual attention: %s", exc)
-        return None
-    return out.to(q.dtype)
+    attn = attn_drop(attn) if training else attn
+    return attn @ v
 
 
 class Attention(nn.Module):
@@ -92,7 +43,7 @@ class Attention(nn.Module):
         norm_layer: nn.Module = nn.LayerNorm,
         qk_norm: bool = False,
         fused_attn: bool = True,  # use F.scaled_dot_product_attention or not
-        rope=None, 
+        rope=None,
     ) -> None:
         super().__init__()
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
@@ -120,7 +71,19 @@ class Attention(nn.Module):
             k = self.rope(k, pos)
 
         if save_vis_attn:
-            self.last_attn = attention_probs(q, k, self.scale, self.attn_drop, self.training)
+
+            seq_len = q.size(-2)  # 773
+            identity_v = torch.eye(
+                seq_len,
+                device=q.device,
+                dtype=q.dtype
+            )  # shape [773, 773]
+
+            identity_v = identity_v.view(1, 1, seq_len, seq_len)             # [1, 1, 773, 773]
+            identity_v = identity_v.expand(q.shape[0], q.shape[1], seq_len, seq_len)
+
+            self.last_attn = manual_attention(q, k, identity_v, self.scale, self.attn_drop, self.training)
+            del identity_v
 
         if self.fused_attn and not is_npu_tensor(q):
             x = F.scaled_dot_product_attention(
@@ -129,10 +92,6 @@ class Attention(nn.Module):
                 v,
                 dropout_p=self.attn_drop.p if self.training else 0.0,
             )
-        elif self.fused_attn:
-            x = npu_fused_attention(q, k, v, self.scale, self.attn_drop.p, self.training)
-            if x is None:
-                x = manual_attention(q, k, v, self.scale, self.attn_drop, self.training)
         else:
             x = manual_attention(q, k, v, self.scale, self.attn_drop, self.training)
 
