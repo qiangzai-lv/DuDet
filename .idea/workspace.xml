@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d1289eb3-f2d0-4fda-a8c0-2e6ca0967dde" name="Changes" comment="init">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/config/vggtdet_scannet.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/config/vggtdet_scannet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/vggtdet/vggt_head.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/vggtdet/vggt_head.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/vggtdet/vggtdet.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/vggtdet/vggtdet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -280,7 +278,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782723722368</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="init">
+      <option name="closed" value="true" />
+      <created>1782734438246</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1782734438246</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

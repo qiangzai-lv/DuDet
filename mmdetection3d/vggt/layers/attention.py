@@ -19,6 +19,18 @@ import torch
 XFORMERS_AVAILABLE = False
 
 
+def is_npu_tensor(x: Tensor) -> bool:
+    return x.device.type == "npu"
+
+
+def manual_attention(q: Tensor, k: Tensor, v: Tensor, scale: float, attn_drop: nn.Dropout, training: bool) -> Tensor:
+    q = q * scale
+    attn = q @ k.transpose(-2, -1)
+    attn = attn.softmax(dim=-1)
+    attn = attn_drop(attn) if training else attn
+    return attn @ v
+
+
 class Attention(nn.Module):
     def __init__(
         self,
@@ -57,20 +69,8 @@ class Attention(nn.Module):
         if self.rope is not None:
             q = self.rope(q, pos)
             k = self.rope(k, pos)
-        # debug #
-        # self.fused_attn=False
-        # if B==40 or B==1: # bs=1  or Global attn
-        #     self.fused_attn=False
-        #########
 
         if save_vis_attn:
-            # import time
-            # import torch
-            # start_event = torch.cuda.Event(enable_timing=True)
-            # end_event = torch.cuda.Event(enable_timing=True)
-
-            # start_event.record()
-            # self.last_attn = torch.softmax(q @ k.transpose(-2, -1) * self.scale, dim=-1)
 
             seq_len = q.size(-2)  # 773
             identity_v = torch.eye(
@@ -82,19 +82,10 @@ class Attention(nn.Module):
             identity_v = identity_v.view(1, 1, seq_len, seq_len)             # [1, 1, 773, 773]
             identity_v = identity_v.expand(q.shape[0], q.shape[1], seq_len, seq_len) 
 
-            self.last_attn = F.scaled_dot_product_attention(
-                q,
-                k,
-                identity_v,
-                dropout_p=self.attn_drop.p if self.training else 0.0,
-            )
+            self.last_attn = manual_attention(q, k, identity_v, self.scale, self.attn_drop, self.training)
             del identity_v
-            # end_event.record()
-            # torch.cuda.synchronize()
-            # print(1)
-            # print(f"Attention computation time: {start_event.elapsed_time(end_event):.3f} ms")
 
-        if self.fused_attn:
+        if self.fused_attn and not is_npu_tensor(q):
             x = F.scaled_dot_product_attention(
                 q,
                 k,
@@ -102,44 +93,8 @@ class Attention(nn.Module):
                 dropout_p=self.attn_drop.p if self.training else 0.0,
             )
         else:
-            q = q * self.scale
-            attn = q @ k.transpose(-2, -1)
-            attn = attn.softmax(dim=-1)
-            attn = self.attn_drop(attn)
-            x = attn @ v
+            x = manual_attention(q, k, v, self.scale, self.attn_drop, self.training)
 
-            # if B==40:   # frame attn
-            #     from torch import save
-            #     save_dir = "attn_layer_visualization/frame_attn"
-            #     os.makedirs(save_dir, exist_ok=True)
-
-            #     if not hasattr(self, 'current_layer'):
-            #         self.current_layer = 0
-                    
-            #     for view_n in observe_view:
-            #         filename = f"frame_attn_view{view_n}_layer{self.current_layer}.pth"
-            #         save_path = os.path.join(save_dir, filename)
-            #         save(attn_mean.cpu(), save_path)
-
-            #     self.current_layer += 1
-
-            # if B==1:   # global attn
-            #     from torch import save
-            #     save_dir = "attn_layer_visualization/global_attn"
-            #     os.makedirs(save_dir, exist_ok=True)
-
-            #     if not hasattr(self, 'current_layer'):
-            #         self.current_layer = 0
-
-            #     for view_n in observe_view:
-            #         filename = f"global_attn_view{view_n}_layer{self.current_layer}.pth"
-            #         save_path = os.path.join(save_dir, filename)
-            #         save(attn_mean.cpu(), save_path)
-
-            #     self.current_layer += 1
-
-        
-            
         x = x.transpose(1, 2).reshape(B, N, C)
         x = self.proj(x)
         x = self.proj_drop(x)
