@@ -188,15 +188,21 @@ class VGGTDetHead(BaseModule):
         Returns:
             tuple[Tensor]: Centerness, bbox and classification predictions.
         """
-        if self.learn_center_diff:
+        can_project_to_scene = (
+            pose_matrix is not None
+            and axis_align_matrix is not None
+            and self.if_project_frist_frame_back
+        )
+
+        if self.learn_center_diff and query_xyz is not None:
             query_xyz = query_xyz.permute(0, 2, 1)
-            if self.if_project_frist_frame_back:
+            if can_project_to_scene:
                 center_pred = self.project_the_first_frame_back(self.center_head(x)+query_xyz, pose_matrix, axis_align_matrix)
             else:
                 center_pred = self.center_head(x)+query_xyz
 
         else:
-            if self.if_project_frist_frame_back:
+            if can_project_to_scene:
                 center_pred = self.project_the_first_frame_back(self.center_head(x), pose_matrix, axis_align_matrix)
             else:
                 center_pred = self.center_head(x)
@@ -206,10 +212,13 @@ class VGGTDetHead(BaseModule):
                 self.semcls_head(x)) # , self.objness_head(x)
 
     def forward(self, x, batch_inputs_dict, batch_data_samples):
+        pose_matrix = batch_inputs_dict.get('pose_matrix', None)
+        axis_align_matrix = batch_inputs_dict.get('axis_align_matrix', None)
+        avg_distance = batch_inputs_dict.get('avg_distance', None)
         if 'query_xyz' in batch_inputs_dict.keys():
-            return multi_apply(self._forward_single, x, self.scales, [batch_inputs_dict['query_xyz'] for _ in range(self.n_levels)], [batch_inputs_dict['pose_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['axis_align_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['avg_distance'] for _ in range(self.n_levels)]) 
+            return multi_apply(self._forward_single, x, self.scales, [batch_inputs_dict['query_xyz'] for _ in range(self.n_levels)], [pose_matrix for _ in range(self.n_levels)], [axis_align_matrix for _ in range(self.n_levels)], [avg_distance for _ in range(self.n_levels)]) 
         else:
-            return multi_apply(self._forward_single, x, self.scales, [None for _ in range(self.n_levels)], [batch_inputs_dict['pose_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['axis_align_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['avg_distance'] for _ in range(self.n_levels)]) 
+            return multi_apply(self._forward_single, x, self.scales, [None for _ in range(self.n_levels)], [pose_matrix for _ in range(self.n_levels)], [axis_align_matrix for _ in range(self.n_levels)], [avg_distance for _ in range(self.n_levels)]) 
 
     def loss(self, x: Tuple[Tensor], batch_data_samples: SampleList, batch_inputs_dict: dict,
              **kwargs) -> dict:
@@ -866,7 +875,6 @@ class UnifiedMatcherMoreThanOne(nn.Module):
             centers[:, 1] + sizes[:, 1]/2.0, centers[:, 2] + sizes[:, 2]/2.0
         ], -1)
     
-
 
 
 
