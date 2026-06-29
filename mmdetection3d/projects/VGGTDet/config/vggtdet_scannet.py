@@ -47,6 +47,7 @@ model = dict(
     vis_dir = None,
     visualize_bbox = False,
     topk=3, # for detection.
+    vggt_pretrained='/home/Newdisk1/lvxueqiang/DuDet/mmdetection3d/pretrain/VGGT-1B',
     decoder_cfg = dict( # the same with 3detr
         dec_dim=_token_dim_,
         dec_nhead=4,

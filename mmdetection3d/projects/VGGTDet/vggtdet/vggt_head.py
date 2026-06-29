@@ -105,9 +105,9 @@ class VGGTDetHead(BaseModule):
         self.prior_generator = TASK_UTILS.build(prior_generator)
         # self.center_loss = MODELS.build(center_loss)
         # self.bbox_loss = MODELS.build(bbox_loss)
-        class_weights = torch.ones((self.n_classes+1), device='cuda') * 1.0
+        class_weights = torch.ones((self.n_classes + 1)) * 1.0
         class_weights[-1] = loss_weights['not_objness_loss']
-        self.cls_loss = nn.CrossEntropyLoss(weight=class_weights) #MODELS.build(cls_loss)
+        self.register_buffer('cls_class_weights', class_weights)
         self.objness_loss = MODELS.build(objness_loss)
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
@@ -317,7 +317,9 @@ class VGGTDetHead(BaseModule):
         cls_target[pred_indices] = matched_gt_labels
 
 
-        cls_loss = self.cls_loss(all_cls, cls_target) * self.loss_weights['cls_loss']
+        cls_loss = F.cross_entropy(
+            all_cls, cls_target, weight=self.cls_class_weights.to(all_cls.device)
+        ) * self.loss_weights['cls_loss']
 
         pred_tp_bbox = self._center_size_pred_to_bbox(matched_centers, matched_sizes)
         gt_tp_bbox = self._center_size_pred_to_bbox(matched_gt_centers, matched_gt_sizes)
@@ -754,7 +756,6 @@ class UnifiedMatcherMoreThanOne(nn.Module):
             centers[:, 1] + sizes[:, 1]/2.0, centers[:, 2] + sizes[:, 2]/2.0
         ], -1)
     
-
 
 
 
