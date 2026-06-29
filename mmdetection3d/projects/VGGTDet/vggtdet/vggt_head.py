@@ -178,7 +178,7 @@ class VGGTDetHead(BaseModule):
         # x_global = x_global_homogeneous[:, :3, :] / x_global_homogeneous[:, 3:4, :]  # [16, 3, 256]
         return x_global
 
-    def _forward_single(self, x: Tensor, scale: Scale, query_xyz, pose_matrix, axis_align_matrix, avg_distance):
+    def _forward_single(self, x: Tensor, scale: Scale):
         """Forward pass per level.
 
         Args:
@@ -188,45 +188,18 @@ class VGGTDetHead(BaseModule):
         Returns:
             tuple[Tensor]: Centerness, bbox and classification predictions.
         """
-        if self.learn_center_diff:
-            query_xyz = query_xyz.permute(0, 2, 1)
-            if self.if_project_frist_frame_back:
-                center_pred = self.project_the_first_frame_back(self.center_head(x)+query_xyz, pose_matrix, axis_align_matrix)
-            else:
-                center_pred = self.center_head(x)+query_xyz
-
-        else:
-            if self.if_project_frist_frame_back:
-                center_pred = self.project_the_first_frame_back(self.center_head(x), pose_matrix, axis_align_matrix)
-            else:
-                center_pred = self.center_head(x)
-
+        center_pred = self.center_head(x)
             # avg_distance_tensor = torch.stack(avg_distance).unsqueeze(-1)
         return (center_pred, torch.exp(scale(self.size_head(x))), #/ avg_distance_tensor,
                 self.semcls_head(x)) # , self.objness_head(x)
 
     def forward(self, x, batch_inputs_dict, batch_data_samples):
-        if 'query_xyz' in batch_inputs_dict.keys():
-            return multi_apply(self._forward_single, x, self.scales, [batch_inputs_dict['query_xyz'] for _ in range(self.n_levels)], [batch_inputs_dict['pose_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['axis_align_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['avg_distance'] for _ in range(self.n_levels)]) 
-        else:
-            return multi_apply(self._forward_single, x, self.scales, [None for _ in range(self.n_levels)], [batch_inputs_dict['pose_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['axis_align_matrix'] for _ in range(self.n_levels)], [batch_inputs_dict['avg_distance'] for _ in range(self.n_levels)]) 
+        return multi_apply(self._forward_single, x, self.scales)
+
 
     def loss(self, x: Tuple[Tensor], batch_data_samples: SampleList, batch_inputs_dict: dict,
              **kwargs) -> dict:
-        """Perform forward propagation and loss calculation of the detection
-        head on the features of the upstream network.
 
-        Args:
-            x (tuple[Tensor]): Features from the upstream network, each is
-                a 4D-tensor.
-            batch_data_samples (List[:obj:`NeRFDet3DDataSample`]): The Data
-                Samples. It usually includes information such as
-                `gt_instance`, `gt_panoptic_seg` and `gt_sem_seg`.
-
-        Returns:
-            dict: A dictionary of loss components.
-        """
-        # valid_pred = x[-1]
         outs = self(x, batch_inputs_dict, batch_data_samples) # x len: 8, every tensor shape: [bs, feat_dim, num_queries]
 
         if 'points' in batch_inputs_dict.keys():
@@ -259,36 +232,7 @@ class VGGTDetHead(BaseModule):
                      batch_input_points,
                      batch_gt_instances_ignore: OptInstanceList = None,
                      **kwargs) -> dict:
-        """Per scene loss function.
 
-        Args:
-            center_preds (list[list[Tensor]]): Centerness predictions for
-                all scenes. The first list contains predictions from different
-                levels. The second list contains predictions in a mini-batch.
-            bbox_preds (list[list[Tensor]]): Bbox predictions for all scenes.
-                The first list contains predictions from different
-                levels. The second list contains predictions in a mini-batch.
-            cls_preds (list[list[Tensor]]): Classification predictions for all
-                scenes. The first list contains predictions from different
-                levels. The second list contains predictions in a mini-batch.
-            valid_pred (Tensor): Valid mask prediction for all scenes.
-            batch_gt_instances_3d (list[:obj:`InstanceData`]): Batch of
-                gt_instance_3d.  It usually includes ``bboxes_3d``、`
-                `labels_3d``、``depths``、``centers_2d`` and attributes.
-            batch_input_metas (list[dict]): Meta information of each image,
-                e.g., image size, scaling factor, etc.
-            batch_gt_instances_ignore (list[:obj:`InstanceData`], Optional):
-                Batch of gt_instances_ignore. It includes ``bboxes`` attribute
-                data that is ignored during training and testing.
-                Defaults to None.
-
-        bboxes_3d.gravity_center: 物体的中心点
-        bboxes_3d.tensor[:, 3:6]: 物体的长宽高
-
-        Returns:
-            dict: Centerness, bbox, and classification loss values.
-        """
-        # valid_preds = self._upsample_valid_preds(valid_pred, center_preds)
         center_losses, size_losses, cls_losses, objness_losses, giou_losses = [], [], [], [], []
         for i in range(len(batch_input_metas)):
             center_loss, size_loss, cls_loss, giou_loss = self._loss_by_feat_single(
@@ -388,37 +332,11 @@ class VGGTDetHead(BaseModule):
                 x: Tuple[Tensor],
                 batch_data_samples: SampleList, batch_inputs_dict, 
                 rescale: bool = False) -> InstanceList:
-        """Perform forward propagation of the 3D detection head and predict
-        detection results on the features of the upstream network.
 
-        Args:
-            x (tuple[Tensor]): Multi-level features from the
-                upstream network, each is a 4D-tensor.
-            batch_data_samples (List[:obj:`NeRFDet3DDataSample`]): The Data
-                Samples. It usually includes information such as
-                `gt_instance_3d`, `gt_pts_panoptic_seg` and
-                `gt_pts_sem_seg`.
-            rescale (bool, optional): Whether to rescale the results.
-                Defaults to False.
-
-        Returns:
-            list[:obj:`InstanceData`]: Detection results of each sample
-            after the post process.
-            Each item usually contains following keys.
-
-            - scores_3d (Tensor): Classification scores, has a shape
-              (num_instances, )
-            - labels_3d (Tensor): Labels of bboxes, has a shape
-              (num_instances, ).
-            - bboxes_3d (BaseInstance3DBoxes): Prediction of bboxes,
-              contains a tensor with shape (num_instances, C), where
-              C >= 6.
-        """
         batch_input_metas = [
             data_samples.metainfo for data_samples in batch_data_samples
         ]
-        # valid_pred = x[-1]
-        outs = self(x, batch_inputs_dict, batch_data_samples) 
+        outs = self(x, batch_inputs_dict, batch_data_samples)
         predictions = self.predict_by_feat(
             *outs,
             batch_input_metas=batch_input_metas,
@@ -430,22 +348,7 @@ class VGGTDetHead(BaseModule):
                      cls_preds: List[List[Tensor]],
                         batch_input_metas: List[dict], batch_inputs_dict: dict, batch_data_samples,
                         **kwargs) -> List[InstanceData]:
-        """Generate boxes for all scenes.
 
-        Args:
-            center_preds (list[list[Tensor]]): Centerness predictions for
-                all scenes.
-            bbox_preds (list[list[Tensor]]): Bbox predictions for all scenes.
-            cls_preds (list[list[Tensor]]): Classification predictions for all
-                scenes.
-            valid_pred (Tensor): Valid mask prediction for all scenes.
-            batch_input_metas (list[dict]): Meta infos for all scenes.
-
-        Returns:
-            list[tuple[Tensor]]: Predicted bboxes, scores, and labels for
-                all scenes.
-        """
-        # valid_preds = self._upsample_valid_preds(valid_pred, center_preds)
         results = []
         if 'points' in batch_inputs_dict.keys():
             batch_input_points = batch_inputs_dict['points']

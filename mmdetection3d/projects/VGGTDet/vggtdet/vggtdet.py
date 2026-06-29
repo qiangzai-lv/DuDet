@@ -60,35 +60,66 @@ class ChannelProjecter(nn.Module):
 class VGGTDet(Base3DDetector):
     def __init__(
             self,
+            backbone: ConfigType,
+            neck: ConfigType,
+            neck_3d: ConfigType,
             bbox_head: ConfigType,
             prior_generator: ConfigType,
+            n_voxels: List,
+            voxel_size: List,
+            head_2d: ConfigType = None,
             train_cfg: OptConfigType = None,
             test_cfg: OptConfigType = None,
             data_preprocessor: OptConfigType = None,
             init_cfg: OptConfigType = None,
+            #  pretrained,
+            aabb: Tuple = None,
+            near_far_range: List = None,
+            N_samples: int = 64,
+            N_rand: int = 2048,
+            depth_supervise: bool = False,
+            use_nerf_mask: bool = True,
+            nerf_sample_view: int = 3,
+            nerf_mode: str = 'volume',
+            squeeze_scale: int = 4,
+            rgb_supervision: bool = True,
+            nerf_density: bool = False,
+            render_testing: bool = False,
+            gs_cfg=None,
+            vis_dir=None,
+            visualize_bbox=False,
+            topk=3,
+            alpha_thres=None,
+            sigma_w=0.5,
             decoder_cfg: OptConfigType = None,
             if_learnable_query=True,
             num_queries=128,
             token_dim=1024,
             test_only_last_layer=True,
+            if_use_gt_query=False,
+            position_embedding="fourier",
             if_mix_precision=False,
             if_save_vggt_feature=False,
             use_multi_layers=False,
             if_simpler_project=False,
+            if_use_pred_pc_query=False,
             if_use_atten_sample=False,
             atten_sample_ratio=10,
             depth_thres=1000,
             if_use_atten_fps=False,
+            lambda_dist=1.0,
             if_task_query=False,
-            ):
-        
-        super().__init__(data_preprocessor=data_preprocessor, init_cfg=init_cfg) 
+            if_add_noises=False,
+            noise_level=None
+    ):
+
+        super().__init__(data_preprocessor=data_preprocessor, init_cfg=init_cfg)
 
         bbox_head.update(train_cfg=train_cfg)
         bbox_head.update(test_cfg=test_cfg)
         self.bbox_head = MODELS.build(bbox_head)
-        
-        self.vggt_encoder = VGGT.from_pretrained("facebook/VGGT-1B").to(device)
+
+        self.vggt_encoder = VGGT.from_pretrained("/home/Newdisk1/lvxueqiang/DuDet/mmdetection3d/pretrain/VGGT-1B").to(device)
 
         for param in self.vggt_encoder.parameters():
             param.requires_grad = False
@@ -97,8 +128,15 @@ class VGGTDet(Base3DDetector):
 
         self.decoder = build_decoder(decoder_cfg, if_multilevel=use_multi_layers)
 
+        # self.proj_feat_dim = nn.Conv2d(
+        #             in_channels=2048,
+        #             out_channels=token_dim,
+        #             kernel_size=1,
+        #             stride=1,
+        #             padding=0
+        #         )
         if if_simpler_project:
-            if use_multi_layers: 
+            if use_multi_layers:
                 self.proj_feat_dim0 = nn.Conv2d(
                     in_channels=2048,
                     out_channels=token_dim,
@@ -127,7 +165,13 @@ class VGGTDet(Base3DDetector):
                     stride=1,
                     padding=0
                 )
-
+                # self.proj_feat_dim4 = nn.Conv2d(
+                #     in_channels=2048,
+                #     out_channels=token_dim,
+                #     kernel_size=1,
+                #     stride=1,
+                #     padding=0
+                # )
             else:
                 self.proj_feat_dim = nn.Conv2d(
                     in_channels=2048,
@@ -137,11 +181,12 @@ class VGGTDet(Base3DDetector):
                     padding=0
                 )
         else:
-            if use_multi_layers: 
-                self.proj_feat_dim0 = ChannelProjecter(in_channels=2048, out_channels=token_dim) #for _ in range(4)]
-                self.proj_feat_dim1 = ChannelProjecter(in_channels=2048, out_channels=token_dim) 
-                self.proj_feat_dim2 = ChannelProjecter(in_channels=2048, out_channels=token_dim) 
+            if use_multi_layers:
+                self.proj_feat_dim0 = ChannelProjecter(in_channels=2048, out_channels=token_dim)  # for _ in range(4)]
+                self.proj_feat_dim1 = ChannelProjecter(in_channels=2048, out_channels=token_dim)
+                self.proj_feat_dim2 = ChannelProjecter(in_channels=2048, out_channels=token_dim)
                 self.proj_feat_dim3 = ChannelProjecter(in_channels=2048, out_channels=token_dim)
+                # self.proj_feat_dim4 = ChannelProjecter(in_channels=2048, out_channels=token_dim)
             else:
                 self.proj_feat_dim = ChannelProjecter(in_channels=2048, out_channels=token_dim)
 
@@ -149,7 +194,6 @@ class VGGTDet(Base3DDetector):
 
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
-
 
         # self.proj_norm = nn.LayerNorm(token_dim)
         self.num_queries = num_queries
@@ -166,6 +210,14 @@ class VGGTDet(Base3DDetector):
         ######### idea 2 ############
         self.test_only_last_layer = test_only_last_layer
 
+        self.if_use_gt_query = if_use_gt_query
+        # assert if_learnable_query is not self.if_use_gt_query
+
+        self.if_use_pred_pc_query = if_use_pred_pc_query
+        # assert
+        assert (self.if_use_pred_pc_query + self.if_use_gt_query + self.if_learnable_query) == 1, \
+            "Only one of 'if_use_pred_pc_query', 'if_use_gt_query', or 'if_learnable_query' must be True."
+
         self.if_mix_precision = if_mix_precision
         self.if_save_vggt_feature = if_save_vggt_feature
 
@@ -174,6 +226,9 @@ class VGGTDet(Base3DDetector):
         self.atten_sample_ratio = atten_sample_ratio
         self.depth_thres = depth_thres
         self.if_use_atten_fps = if_use_atten_fps
+        self.lambda_dist = lambda_dist
+        self.if_add_noises = if_add_noises
+        self.noise_level = noise_level
 
 
     @torch.no_grad()
