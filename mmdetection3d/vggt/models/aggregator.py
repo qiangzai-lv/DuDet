@@ -89,6 +89,7 @@ class Aggregator(nn.Module):
                     init_values=init_values,
                     qk_norm=qk_norm,
                     rope=self.rope,
+                    is_global_attention=False,
                 )
                 for _ in range(depth)
             ]
@@ -106,6 +107,7 @@ class Aggregator(nn.Module):
                     init_values=init_values,
                     qk_norm=qk_norm,
                     rope=self.rope,
+                    is_global_attention=True,
                 )
                 for _ in range(depth)
             ]

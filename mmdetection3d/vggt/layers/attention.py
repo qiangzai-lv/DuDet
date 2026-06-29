@@ -8,27 +8,44 @@
 #   https://github.com/rwightman/pytorch-image-models/tree/master/timm/models/vision_transformer.py
 
 import logging
+import math
 import os
+from dataclasses import dataclass
+from typing import Optional
 import warnings
 
 from torch import Tensor
 from torch import nn
-from torch import softmax
 import torch.nn.functional as F
 import torch
+
+try:
+    import torch_npu
+except ImportError:
+    torch_npu = None
+
 XFORMERS_AVAILABLE = False
 
 
-def is_npu_tensor(x: Tensor) -> bool:
-    return x.device.type == "npu"
+@dataclass
+class FIAComputeParams:
+    q: Tensor
+    k: Tensor
+    v: Tensor
+    causal: bool = False
+    scale: Optional[float] = None
+    dropout_p: float = 0.0
 
 
-def manual_attention(q: Tensor, k: Tensor, v: Tensor, scale: float, attn_drop: nn.Dropout, training: bool) -> Tensor:
+def attention_probs(q: Tensor, k: Tensor, scale: float, attn_drop: nn.Dropout, training: bool) -> Tensor:
     q = q * scale
     attn = q @ k.transpose(-2, -1)
     attn = attn.softmax(dim=-1)
-    attn = attn_drop(attn) if training else attn
-    return attn @ v
+    return attn_drop(attn) if training else attn
+
+
+def manual_attention(q: Tensor, k: Tensor, v: Tensor, scale: float, attn_drop: nn.Dropout, training: bool) -> Tensor:
+    return attention_probs(q, k, scale, attn_drop, training) @ v
 
 
 class Attention(nn.Module):
@@ -44,6 +61,7 @@ class Attention(nn.Module):
         qk_norm: bool = False,
         fused_attn: bool = True,  # use F.scaled_dot_product_attention or not
         rope=None,
+        is_global_attention: bool = False,
     ) -> None:
         super().__init__()
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
@@ -51,6 +69,7 @@ class Attention(nn.Module):
         self.head_dim = dim // num_heads
         self.scale = self.head_dim**-0.5
         self.fused_attn = fused_attn
+        self.is_global_attention = is_global_attention
 
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
         self.q_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
@@ -71,26 +90,28 @@ class Attention(nn.Module):
             k = self.rope(k, pos)
 
         if save_vis_attn:
+            with torch.no_grad():
+                self.last_attn = attention_probs(q.detach(), k.detach(), self.scale, self.attn_drop, False)
 
-            seq_len = q.size(-2)  # 773
-            identity_v = torch.eye(
-                seq_len,
-                device=q.device,
-                dtype=q.dtype
-            )  # shape [773, 773]
-
-            identity_v = identity_v.view(1, 1, seq_len, seq_len)             # [1, 1, 773, 773]
-            identity_v = identity_v.expand(q.shape[0], q.shape[1], seq_len, seq_len)
-
-            self.last_attn = manual_attention(q, k, identity_v, self.scale, self.attn_drop, self.training)
-            del identity_v
-
-        if self.fused_attn and not is_npu_tensor(q):
+        if self.fused_attn and self.is_global_attention:
+            x = self._compute_attention_with_fia(
+                FIAComputeParams(
+                    q=q,
+                    k=k,
+                    v=v,
+                    causal=False,
+                    scale=self.scale,
+                    dropout_p=self.attn_drop.p if self.training else 0.0,
+                )
+            )
+        elif self.fused_attn:
             x = F.scaled_dot_product_attention(
                 q,
                 k,
                 v,
                 dropout_p=self.attn_drop.p if self.training else 0.0,
+                is_causal=False,
+                scale=self.scale,
             )
         else:
             x = manual_attention(q, k, v, self.scale, self.attn_drop, self.training)
@@ -99,6 +120,65 @@ class Attention(nn.Module):
         x = self.proj(x)
         x = self.proj_drop(x)
         return x
+
+    def _compute_attention_with_fia(self, params: FIAComputeParams) -> Tensor:
+        q, k, v = params.q, params.k, params.v
+        _, num_heads, _, head_dim = q.shape
+        scale = params.scale if params.scale is not None else 1.0 / math.sqrt(head_dim)
+
+        if torch_npu is None or q.device.type != "npu":
+            return F.scaled_dot_product_attention(
+                q,
+                k,
+                v,
+                dropout_p=params.dropout_p,
+                is_causal=params.causal,
+                scale=scale,
+            )
+
+        if params.dropout_p > 0.0 and self.training:
+            logging.warning(
+                "FIA does not support dropout (dropout_p=%s), falling back to SDPA",
+                params.dropout_p,
+            )
+            return F.scaled_dot_product_attention(
+                q,
+                k,
+                v,
+                dropout_p=params.dropout_p,
+                is_causal=params.causal,
+                scale=scale,
+            )
+
+        num_key_value_heads = k.shape[1]
+        if num_heads == num_key_value_heads:
+            num_key_value_heads = 0
+
+        try:
+            out = torch_npu.npu_fused_infer_attention_score(
+                q,
+                k,
+                v,
+                num_heads=num_heads,
+                scale=float(scale),
+                input_layout="BNSD",
+                num_key_value_heads=num_key_value_heads,
+                pre_tokens=65535,
+                next_tokens=65535 if not params.causal else 0,
+                sparse_mode=0,
+                inner_precise=0,
+            )[0]
+        except RuntimeError as exc:
+            logging.warning("FIA failed, falling back to SDPA: %s", exc)
+            return F.scaled_dot_product_attention(
+                q,
+                k,
+                v,
+                dropout_p=params.dropout_p,
+                is_causal=params.causal,
+                scale=scale,
+            )
+        return out.to(q.dtype)
 
 
 class MemEffAttention(Attention):
