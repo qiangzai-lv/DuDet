@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=0,1,3 bash tools/dist_train.sh projects/VGGTDet/config/vggtdet_scannet.py 3
+CUDA_VISIBLE_DEVICES=0,1,3 bash tools/dist_train.sh projects/VGGTDet/config/vggtdet_scannet.py 1

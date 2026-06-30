@@ -7,10 +7,13 @@
 #   https://github.com/facebookresearch/dino/blob/master/vision_transformer.py
 #   https://github.com/rwightman/pytorch-image-models/tree/master/timm/models/vision_transformer.py
 
-import torch
-import torch.nn.functional as F
+import logging
+import os
+import warnings
+
 from torch import Tensor
 from torch import nn
+import torch.nn.functional as F
 
 XFORMERS_AVAILABLE = False
 
@@ -27,7 +30,7 @@ class Attention(nn.Module):
         norm_layer: nn.Module = nn.LayerNorm,
         qk_norm: bool = False,
         fused_attn: bool = True,  # use F.scaled_dot_product_attention or not
-        rope=None, 
+        rope=None,
     ) -> None:
         super().__init__()
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
@@ -44,7 +47,7 @@ class Attention(nn.Module):
         self.proj_drop = nn.Dropout(proj_drop)
         self.rope = rope
 
-    def forward(self, x: Tensor, pos=None, save_vis_attn=False) -> Tensor:
+    def forward(self, x: Tensor, pos=None) -> Tensor:
         B, N, C = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim).permute(2, 0, 3, 1, 4)
         q, k, v = qkv.unbind(0)
@@ -53,46 +56,9 @@ class Attention(nn.Module):
         if self.rope is not None:
             q = self.rope(q, pos)
             k = self.rope(k, pos)
-        # debug #
-        # self.fused_attn=False
-        # if B==40 or B==1: # bs=1  or Global attn
-        #     self.fused_attn=False
-        #########
-
-        if save_vis_attn:
-            # import time
-            # import torch
-            # start_event = torch.cuda.Event(enable_timing=True)
-            # end_event = torch.cuda.Event(enable_timing=True)
-
-            # start_event.record()
-            # self.last_attn = torch.softmax(q @ k.transpose(-2, -1) * self.scale, dim=-1)
-
-            seq_len = q.size(-2)  # 773
-            identity_v = torch.eye(
-                seq_len,
-                device=q.device,
-                dtype=q.dtype
-            )  # shape [773, 773]
-
-            identity_v = identity_v.view(1, 1, seq_len, seq_len)             # [1, 1, 773, 773]
-            identity_v = identity_v.expand(q.shape[0], q.shape[1], seq_len, seq_len) 
-
-            self.last_attn = F.scaled_dot_product_attention(
-                q,
-                k,
-                identity_v,
-                dropout_p=self.attn_drop.p if self.training else 0.0,
-            )
-            del identity_v
 
         if self.fused_attn:
-            x = F.scaled_dot_product_attention(
-                q,
-                k,
-                v,
-                dropout_p=self.attn_drop.p if self.training else 0.0,
-            )
+            x = F.scaled_dot_product_attention(q, k, v, dropout_p=self.attn_drop.p if self.training else 0.0)
         else:
             q = q * self.scale
             attn = q @ k.transpose(-2, -1)
@@ -107,12 +73,12 @@ class Attention(nn.Module):
 
 
 class MemEffAttention(Attention):
-    def forward(self, x: Tensor, attn_bias=None, pos=None, save_vis_attn=False) -> Tensor:
+    def forward(self, x: Tensor, attn_bias=None, pos=None) -> Tensor:
         assert pos is None
         if not XFORMERS_AVAILABLE:
             if attn_bias is not None:
                 raise AssertionError("xFormers is required for using nested tensors")
-            return super().forward(x,save_vis_attn=save_vis_attn)
+            return super().forward(x)
 
         B, N, C = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads)

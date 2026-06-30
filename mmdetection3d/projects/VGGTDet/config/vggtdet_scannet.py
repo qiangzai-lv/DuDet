@@ -96,7 +96,6 @@ model = dict(
     use_multi_layers=True,
     if_simpler_project=True,
     if_use_pred_pc_query=False,
-    if_use_atten_sample=False,
     atten_sample_ratio=10,
     if_use_atten_fps=True,
     lambda_dist=0.8,

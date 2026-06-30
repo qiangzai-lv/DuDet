@@ -5,9 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1289eb3-f2d0-4fda-a8c0-2e6ca0967dde" name="Changes" comment="init">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/config/vggtdet_scannet.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/config/vggtdet_scannet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/vggtdet/vggtdet.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/vggtdet/vggtdet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/dpt_head.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/heads/dpt_head.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/block.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/block.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/models/aggregator.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/models/aggregator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/models/vggt.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/models/vggt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/geometry.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/utils/geometry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/load_fn.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/utils/load_fn.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +24,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1455" />
+    <option name="cachedIndexableFilesCount" value="1285" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,23 +48,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.2824213041011103" />
-      <entry key="MS500" value="2.197125608961092" />
-      <entry key="S2" value="2.745433981293541" />
-      <entry key="S5" value="2.8927897724769" />
-      <entry key="S10" value="2.945449541631767" />
-      <entry key="S30" value="2.981601770913615" />
-      <entry key="S60" value="2.99077374536165" />
-      <entry key="M2" value="2.995380065152708" />
-      <entry key="M5" value="2.9981503893648083" />
-      <entry key="M10" value="2.999075039781077" />
-      <entry key="M15" value="2.9994935998424133" />
-      <entry key="M30" value="3.1107525313149704" />
-      <entry key="H1" value="7.19626331198248" />
-      <entry key="H2" value="32.175327518825654" />
-      <entry key="H4" value="83.31569999416075" />
-      <entry key="D1" value="194.20030122933264" />
-      <entry key="W1" value="225.32668264241357" />
+      <entry key="MS100" value="1.5030836810008723" />
+      <entry key="MS500" value="2.8221192121208913" />
+      <entry key="S2" value="3.619940811819621" />
+      <entry key="S5" value="3.8391547420200975" />
+      <entry key="S10" value="3.9180160902803585" />
+      <entry key="S30" value="3.972316160230726" />
+      <entry key="S60" value="3.9861130263152336" />
+      <entry key="M2" value="3.993045206468699" />
+      <entry key="M5" value="3.997215363427095" />
+      <entry key="M10" value="3.9986073461605076" />
+      <entry key="M15" value="3.9991817524746276" />
+      <entry key="M30" value="4.110590819817389" />
+      <entry key="H1" value="8.196076261802542" />
+      <entry key="H2" value="33.17490935458887" />
+      <entry key="H4" value="84.31515858927096" />
+      <entry key="D1" value="195.20009090227268" />
+      <entry key="W1" value="226.32664777979244" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -63,37 +72,37 @@
       <entry key="S2" value="0.0" />
       <entry key="S5" value="0.0" />
       <entry key="S10" value="0.0" />
-      <entry key="S30" value="4.097259843414289E-180" />
-      <entry key="S60" value="2.8618219283189267E-90" />
-      <entry key="M2" value="2.453909017124729E-45" />
-      <entry key="M5" value="2.7302993240952054E-18" />
-      <entry key="M10" value="3.393026670373583E-9" />
-      <entry key="M15" value="3.872927862151873E-6" />
-      <entry key="M30" value="0.0049211321950247185" />
-      <entry key="H1" value="0.1952771118486492" />
-      <entry key="H2" value="1.2949029453674301" />
-      <entry key="H4" value="3.3917709079930694" />
-      <entry key="D1" value="7.641792566125574" />
-      <entry key="W1" value="8.791896738232328" />
+      <entry key="S30" value="4.084499735695101E-180" />
+      <entry key="S60" value="2.8573621633536047E-90" />
+      <entry key="M2" value="2.4519962278780294E-45" />
+      <entry key="M5" value="2.729447832223815E-18" />
+      <entry key="M10" value="3.3924975415898393E-9" />
+      <entry key="M15" value="3.872525206730472E-6" />
+      <entry key="M30" value="0.004920876371506441" />
+      <entry key="H1" value="0.1952720360728854" />
+      <entry key="H2" value="1.2948861162581837" />
+      <entry key="H4" value="3.3917488674730385" />
+      <entry key="D1" value="7.641784289744162" />
+      <entry key="W1" value="8.791895377947068" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="1.2431162575888028" />
-      <entry key="MS500" value="2.140754761169491" />
-      <entry key="S2" value="2.719586474389116" />
-      <entry key="S5" value="2.881067442094007" />
-      <entry key="S10" value="2.939336285256096" />
-      <entry key="S30" value="2.9795058600784734" />
-      <entry key="S60" value="2.989718382710854" />
-      <entry key="M2" value="2.9948505215710304" />
-      <entry key="M5" value="2.997938123647217" />
-      <entry key="M10" value="2.998968835482481" />
-      <entry key="M15" value="2.999426646164475" />
-      <entry key="M30" value="3.1156352527186364" />
-      <entry key="H1" value="7.391462997146088" />
-      <entry key="H2" value="33.47001773466486" />
-      <entry key="H4" value="86.70719253691432" />
-      <entry key="D1" value="201.84198728018595" />
-      <entry key="W1" value="234.1185617956611" />
+      <entry key="MS100" value="0.8799566727189232" />
+      <entry key="MS500" value="2.6046893120476273" />
+      <entry key="S2" value="3.5495650136714616" />
+      <entry key="S5" value="3.8091088184698014" />
+      <entry key="S10" value="3.9026459299093395" />
+      <entry key="S30" value="3.9671124739169" />
+      <entry key="S60" value="3.9835009426637833" />
+      <entry key="M2" value="3.991736589038688" />
+      <entry key="M5" value="3.99669129631786" />
+      <entry key="M10" value="3.998345212469251" />
+      <entry key="M15" value="3.9990108390854653" />
+      <entry key="M30" value="4.115421302707019" />
+      <entry key="H1" value="8.391244880521459" />
+      <entry key="H2" value="34.46956974765837" />
+      <entry key="H4" value="87.70662259507968" />
+      <entry key="D1" value="202.84176759381805" />
+      <entry key="W1" value="235.11852541803708" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -105,32 +114,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "WebServerToolWindowPanel.toolwindow.highlight.mappings": "true",
-    "WebServerToolWindowPanel.toolwindow.highlight.symlinks": "true",
-    "WebServerToolWindowPanel.toolwindow.show.date": "false",
-    "WebServerToolWindowPanel.toolwindow.show.permissions": "false",
-    "WebServerToolWindowPanel.toolwindow.show.size": "false",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/Users/lvxueqiang/Documents/working/DuDet/mmdetection3d",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.mappings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.symlinks&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.date&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.permissions&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.size&quot;: &quot;false&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/lvxueqiang/Documents/working/DuDet/mmdetection3d/vggt&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/mmdetection3d/vggt" />
       <recent name="$PROJECT_DIR$/mmdetection3d" />
       <recent name="$PROJECT_DIR$/vggt" />
       <recent name="$PROJECT_DIR$/mmdetection3d/projects" />
@@ -335,7 +345,23 @@
       <option name="project" value="LOCAL" />
       <updated>1782784856387</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="init">
+      <option name="closed" value="true" />
+      <created>1782785109146</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1782785109146</updated>
+    </task>
+    <task id="LOCAL-00025" summary="init">
+      <option name="closed" value="true" />
+      <created>1782785457230</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1782785457231</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

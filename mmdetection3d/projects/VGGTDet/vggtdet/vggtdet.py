@@ -139,7 +139,6 @@ class VGGTDet(Base3DDetector):
             use_multi_layers=False,
             if_simpler_project=False,
             if_use_pred_pc_query=False,
-            if_use_atten_sample=False,
             atten_sample_ratio=10,
             depth_thres=1000,
             if_use_atten_fps=False,
@@ -260,7 +259,6 @@ class VGGTDet(Base3DDetector):
         self.if_save_vggt_feature = if_save_vggt_feature
 
         self.use_multi_layers = use_multi_layers
-        self.if_use_atten_sample = if_use_atten_sample
         self.atten_sample_ratio = atten_sample_ratio
         self.depth_thres = depth_thres
         self.if_use_atten_fps = if_use_atten_fps
@@ -285,19 +283,12 @@ class VGGTDet(Base3DDetector):
             with self.maybe_autocast():
                 img = batch_inputs_dict['imgs'] # (bs, 40, 3, 392, 518)
                 img = img.to(self.vggt_device).float()
-                if self.if_use_atten_sample or self.if_use_atten_fps:
-                    aggregated_tokens_list, ps_idx, images_patch_attn = self.vggt_encoder.aggregator(img, if_norm=False, if_detach=True, 
-                                                                                                     if_only_last_layer=(not self.use_multi_layers), 
-                                                                                                     if_use_atten_sample=True, 
-                                                                                                     if_task_query=self.if_task_query) # if_norm=False because we have norm it in the data layer
-                    return aggregated_tokens_list, ps_idx, img, images_patch_attn
-                else:
-                    aggregated_tokens_list, ps_idx = self.vggt_encoder.aggregator(img, if_norm=False, 
-                                                                                  if_detach=True, 
-                                                                                  if_only_last_layer=(not self.use_multi_layers), 
-                                                                                  if_use_atten_sample=False,
-                                                                                  if_task_query=self.if_task_query) 
-                    return aggregated_tokens_list, ps_idx, img, None
+                aggregated_tokens_list, ps_idx = self.vggt_encoder.aggregator(img, if_norm=False,
+                                                                              if_detach=True,
+                                                                              if_only_last_layer=(
+                                                                                  not self.use_multi_layers),
+                                                                              if_task_query=self.if_task_query)
+                return aggregated_tokens_list, ps_idx, img, None
 
 
     @torch.no_grad()

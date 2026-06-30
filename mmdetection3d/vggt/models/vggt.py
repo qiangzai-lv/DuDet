@@ -15,14 +15,16 @@ from vggt.heads.track_head import TrackHead
 
 
 class VGGT(nn.Module, PyTorchModelHubMixin):
-    def __init__(self, img_size=518, patch_size=14, embed_dim=1024):
+    def __init__(self, img_size=518, patch_size=14, embed_dim=1024,
+                 enable_camera=True, enable_point=True, enable_depth=True, enable_track=True):
         super().__init__()
 
         self.aggregator = Aggregator(img_size=img_size, patch_size=patch_size, embed_dim=embed_dim)
-        self.camera_head = CameraHead(dim_in=2 * embed_dim)
-        self.point_head = DPTHead(dim_in=2 * embed_dim, output_dim=4, activation="inv_log", conf_activation="expp1")
-        self.depth_head = DPTHead(dim_in=2 * embed_dim, output_dim=2, activation="exp", conf_activation="expp1")
-        self.track_head = TrackHead(dim_in=2 * embed_dim, patch_size=patch_size)
+
+        self.camera_head = CameraHead(dim_in=2 * embed_dim) if enable_camera else None
+        self.point_head = DPTHead(dim_in=2 * embed_dim, output_dim=4, activation="inv_log", conf_activation="expp1") if enable_point else None
+        self.depth_head = DPTHead(dim_in=2 * embed_dim, output_dim=2, activation="exp", conf_activation="expp1") if enable_depth else None
+        self.track_head = TrackHead(dim_in=2 * embed_dim, patch_size=patch_size) if enable_track else None
 
     def forward(
         self,
@@ -68,7 +70,8 @@ class VGGT(nn.Module, PyTorchModelHubMixin):
             if self.camera_head is not None:
                 pose_enc_list = self.camera_head(aggregated_tokens_list)
                 predictions["pose_enc"] = pose_enc_list[-1]  # pose encoding of the last iteration
-
+                predictions["pose_enc_list"] = pose_enc_list
+                
             if self.depth_head is not None:
                 depth, depth_conf = self.depth_head(
                     aggregated_tokens_list, images=images, patch_start_idx=patch_start_idx

@@ -214,13 +214,7 @@ class DPTHead(nn.Module):
 
         out = []
         dpt_idx = 0
-        ####### debug #######
-        assert len(aggregated_tokens_list) == 5 or len(aggregated_tokens_list) == 4
-        if len(aggregated_tokens_list) == 5:
-            self.intermediate_layer_idx = [1,2,3,4]
-        elif len(aggregated_tokens_list) == 4:
-            self.intermediate_layer_idx = [0,1,2,3]
-        #####################
+
         for layer_idx in self.intermediate_layer_idx:
             x = aggregated_tokens_list[layer_idx][:, :, patch_start_idx:]
 
@@ -228,9 +222,7 @@ class DPTHead(nn.Module):
             if frames_start_idx is not None and frames_end_idx is not None:
                 x = x[:, frames_start_idx:frames_end_idx]
 
-            if not x.is_contiguous():
-                x = x.contiguous()
-            x = x.view(B * S, -1, x.shape[-1])
+            x = x.reshape(B * S, -1, x.shape[-1])
 
             x = self.norm(x)
 
@@ -265,8 +257,6 @@ class DPTHead(nn.Module):
 
         preds = preds.view(B, S, *preds.shape[1:])
         conf = conf.view(B, S, *conf.shape[1:])
-        
-        del out
         return preds, conf
 
     def _apply_pos_embed(self, x: torch.Tensor, W: int, H: int, ratio: float = 0.1) -> torch.Tensor:

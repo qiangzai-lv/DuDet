@@ -50,24 +50,24 @@ class Aggregator(nn.Module):
     """
 
     def __init__(
-        self,
-        img_size=518,
-        patch_size=14,
-        embed_dim=1024,
-        depth=24,
-        num_heads=16,
-        mlp_ratio=4.0,
-        num_register_tokens=4,
-        block_fn=Block,
-        qkv_bias=True,
-        proj_bias=True,
-        ffn_bias=True,
-        patch_embed="dinov2_vitl14_reg",
-        aa_order=["frame", "global"],
-        aa_block_size=1,
-        qk_norm=True,
-        rope_freq=100,
-        init_values=0.01,
+            self,
+            img_size=518,
+            patch_size=14,
+            embed_dim=1024,
+            depth=24,
+            num_heads=16,
+            mlp_ratio=4.0,
+            num_register_tokens=4,
+            block_fn=Block,
+            qkv_bias=True,
+            proj_bias=True,
+            ffn_bias=True,
+            patch_embed="dinov2_vitl14_reg",
+            aa_order=["frame", "global"],
+            aa_block_size=1,
+            qk_norm=True,
+            rope_freq=100,
+            init_values=0.01,
     ):
         super().__init__()
 
@@ -136,28 +136,28 @@ class Aggregator(nn.Module):
 
         # Register normalization constants as buffers
         for name, value in (
-            ("_resnet_mean", _RESNET_MEAN),
-            ("_resnet_std", _RESNET_STD),
+                ("_resnet_mean", _RESNET_MEAN),
+                ("_resnet_std", _RESNET_STD),
         ):
             self.register_buffer(
                 name,
                 torch.FloatTensor(value).view(1, 1, 3, 1, 1),
                 persistent=False,
             )
-        
+
         self.return_list = [4, 11, 17, 23]
 
     def __build_patch_embed__(
-        self,
-        patch_embed,
-        img_size,
-        patch_size,
-        num_register_tokens,
-        interpolate_antialias=True,
-        interpolate_offset=0.0,
-        block_chunks=0,
-        init_values=1.0,
-        embed_dim=1024,
+            self,
+            patch_embed,
+            img_size,
+            patch_size,
+            num_register_tokens,
+            interpolate_antialias=True,
+            interpolate_offset=0.0,
+            block_chunks=0,
+            init_values=1.0,
+            embed_dim=1024,
     ):
         """
         Build the patch embed layer. If 'conv', we use a
@@ -189,8 +189,8 @@ class Aggregator(nn.Module):
                 self.patch_embed.mask_token.requires_grad_(False)
 
     def forward(
-        self,
-        images: torch.Tensor, if_norm=True, if_detach=False, if_only_last_layer=False, vis_attn_map=False, if_use_atten_sample=False, if_task_query=False
+            self,
+            images: torch.Tensor, if_norm=True, if_detach=False, if_only_last_layer=False, if_task_query=False
     ) -> Tuple[List[torch.Tensor], int]:
         """
         Args:
@@ -211,10 +211,10 @@ class Aggregator(nn.Module):
 
         # Normalize images and reshape for patch embed
         if if_norm:
-            images = (images - self._resnet_mean) / self._resnet_std # shape: [B, S, C_in, H, W]
+            images = (images - self._resnet_mean) / self._resnet_std  # shape: [B, S, C_in, H, W]
 
         # Reshape to [B*S, C, H, W] for patch embedding
-        images = images.view(B * S, C_in, H, W) # shape: [B * S, C_in, H, W], [3, 3, 392, 518]
+        images = images.view(B * S, C_in, H, W)  # shape: [B * S, C_in, H, W], [3, 3, 392, 518]
         patch_tokens = self.patch_embed(images)
 
         if isinstance(patch_tokens, dict):
@@ -248,36 +248,22 @@ class Aggregator(nn.Module):
         output_list = []
 
         if if_only_last_layer:
-            tmp_return_list = [self.aa_block_num-1]
+            tmp_return_list = [self.aa_block_num - 1]
         else:
             tmp_return_list = self.return_list
 
         if if_task_query:
             tmp_return_list = [4, 11, 17, 23]
-        
-        if if_use_atten_sample:
-            vis_attn_map = True
 
-        if vis_attn_map or if_use_atten_sample:
-            vis_attn_type = "frame"
-        else: 
-            vis_attn_type = None
-
-        vis_layer_idx = 0
-        
-        for i in range(self.aa_block_num): # self.aa_block_num = 24
-            for attn_type in self.aa_order: # ['frame', 'global']
-                if vis_attn_map:
-                    is_last_block = (i == vis_layer_idx and attn_type == vis_attn_type)
-                else: 
-                    is_last_block = False
+        for i in range(self.aa_block_num):  # self.aa_block_num = 24
+            for attn_type in self.aa_order:  # ['frame', 'global']
                 if attn_type == "frame":
                     tokens, frame_idx, frame_intermediates = self._process_frame_attention(
-                        tokens, B, S, P, C, frame_idx, pos=pos, save_vis_attn=is_last_block
+                        tokens, B, S, P, C, frame_idx, pos=pos
                     )
                 elif attn_type == "global":
                     tokens, global_idx, global_intermediates = self._process_global_attention(
-                        tokens, B, S, P, C, global_idx, pos=pos, save_vis_attn=is_last_block
+                        tokens, B, S, P, C, global_idx, pos=pos
                     )
                 else:
                     raise ValueError(f"Unknown attention type: {attn_type}")
@@ -287,40 +273,17 @@ class Aggregator(nn.Module):
                 if i in tmp_return_list:
                     concat_inter = torch.cat([frame_intermediates[j], global_intermediates[j]], dim=-1)
                     if if_detach:
-                        output_list.append(concat_inter.detach()) # len = 24
+                        output_list.append(concat_inter.detach())  # len = 24
                     else:
                         output_list.append(concat_inter)
 
-        last_attn_map = None
-        if vis_attn_map or if_use_atten_sample:
-            if hasattr(self.global_blocks[vis_layer_idx].attn, 'last_attn'):
-                last_attn_map = self.global_blocks[vis_layer_idx].attn.last_attn
-            elif hasattr(self.frame_blocks[vis_layer_idx].attn, 'last_attn'):
-                last_attn_map = self.frame_blocks[vis_layer_idx].attn.last_attn
-            if vis_attn_type == 'global':
-                attn = last_attn_map[0]
-                attn_mean_head = attn.mean(0)
-                mean_attn = attn_mean_head.mean(dim=0)  # [N]
-                # mean_attn = attn_mean_head.max(dim=0).values
-                mean_attn = mean_attn.reshape(S, -1)
-                images_patch_attn = mean_attn[:,self.patch_start_idx:]
-
-            elif vis_attn_type == 'frame':  
-                attn_mean_head = last_attn_map.mean(dim=1)
-                mean_attn = attn_mean_head.mean(dim=1)
-                # mean_attn = attn_mean_head.max(dim=0).values
-                images_patch_attn = mean_attn[:,self.patch_start_idx:]
-
-        del last_attn_map
         del concat_inter
         del frame_intermediates
         del global_intermediates
-        if if_use_atten_sample:
-            return output_list, self.patch_start_idx, images_patch_attn
-        else:
-            return output_list, self.patch_start_idx
+        return output_list, self.patch_start_idx
 
-    def _process_frame_attention(self, tokens, B, S, P, C, frame_idx, pos=None, save_vis_attn=False):
+
+    def _process_frame_attention(self, tokens, B, S, P, C, frame_idx, pos=None):
         """
         Process frame attention blocks. We keep tokens in shape (B*S, P, C).
         """
@@ -335,13 +298,13 @@ class Aggregator(nn.Module):
 
         # by default, self.aa_block_size=1, which processes one block at a time
         for _ in range(self.aa_block_size):
-            tokens = self.frame_blocks[frame_idx](tokens, pos=pos, save_vis_attn=save_vis_attn)
+            tokens = self.frame_blocks[frame_idx](tokens, pos=pos)
             frame_idx += 1
             intermediates.append(tokens.view(B, S, P, C))
 
         return tokens, frame_idx, intermediates
 
-    def _process_global_attention(self, tokens, B, S, P, C, global_idx, pos=None, save_vis_attn=False):
+    def _process_global_attention(self, tokens, B, S, P, C, global_idx, pos=None):
         """
         Process global attention blocks. We keep tokens in shape (B, S*P, C).
         """
@@ -355,7 +318,7 @@ class Aggregator(nn.Module):
 
         # by default, self.aa_block_size=1, which processes one block at a time
         for _ in range(self.aa_block_size):
-            tokens = self.global_blocks[global_idx](tokens, pos=pos, save_vis_attn=save_vis_attn)
+            tokens = self.global_blocks[global_idx](tokens, pos=pos)
             global_idx += 1
             intermediates.append(tokens.view(B, S, P, C))
 
