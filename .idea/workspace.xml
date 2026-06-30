@@ -5,18 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1289eb3-f2d0-4fda-a8c0-2e6ca0967dde" name="Changes" comment="init">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/config/vggtdet_scannet.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/config/vggtdet_scannet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/vggtdet/vggtdet.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/projects/VGGTDet/vggtdet/vggtdet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/camera_head.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/heads/camera_head.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/dpt_head.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/heads/dpt_head.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/blocks.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/blocks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/modules.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/block.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/block.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/layer_scale.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/layer_scale.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/patch_embed.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/patch_embed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/vision_transformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/vision_transformer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/models/aggregator.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/models/aggregator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/models/vggt.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/models/vggt.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/geometry.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/utils/geometry.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/load_fn.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/utils/load_fn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/pose_enc.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/utils/pose_enc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/rotation.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/utils/rotation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -361,7 +362,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782785457231</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="init">
+      <option name="closed" value="true" />
+      <created>1782787833408</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1782787833408</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

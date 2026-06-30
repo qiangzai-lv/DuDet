@@ -28,6 +28,7 @@ class Aggregator(nn.Module):
     The Aggregator applies alternating-attention over input frames,
     as described in VGGT: Visual Geometry Grounded Transformer.
 
+    Remember to set model.train() to enable gradient checkpointing to reduce memory usage.
 
     Args:
         img_size (int): Image size in pixels.
@@ -148,16 +149,16 @@ class Aggregator(nn.Module):
         self.return_list = [4, 11, 17, 23]
 
     def __build_patch_embed__(
-            self,
-            patch_embed,
-            img_size,
-            patch_size,
-            num_register_tokens,
-            interpolate_antialias=True,
-            interpolate_offset=0.0,
-            block_chunks=0,
-            init_values=1.0,
-            embed_dim=1024,
+        self,
+        patch_embed,
+        img_size,
+        patch_size,
+        num_register_tokens,
+        interpolate_antialias=True,
+        interpolate_offset=0.0,
+        block_chunks=0,
+        init_values=1.0,
+        embed_dim=1024,
     ):
         """
         Build the patch embed layer. If 'conv', we use a
@@ -198,8 +199,9 @@ class Aggregator(nn.Module):
                 B: batch size, S: sequence length, 3: RGB channels, H: height, W: width
 
         Returns:
-            (list[torch.Tensor], int):
-                The list of outputs from the attention blocks,
+            (list[torch.Tensor | None], int):
+                The list of cached outputs from the attention blocks. Entries for
+                uncached layers are None so layer indices remain stable.
                 and the patch_start_idx indicating where patch tokens begin.
         """
         B, S, C_in, H, W = images.shape
