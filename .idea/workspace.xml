@@ -6,202 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="d1289eb3-f2d0-4fda-a8c0-2e6ca0967dde" name="Changes" comment="init">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/camera_head.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/dpt_head.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/head_act.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_head.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/base_track_predictor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/blocks.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/modules.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/track_modules/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/heads/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/block.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/drop_path.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/layer_scale.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/mlp.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/patch_embed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/rope.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/swiglu_ffn.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/vision_transformer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/models/aggregator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/models/vggt.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/geometry.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/load_fn.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/pose_enc.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/rotation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/utils/visual_track.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/CODE_OF_CONDUCT.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/CONTRIBUTING.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/demo_colmap.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/demo_gradio.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/demo_viser.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/docs/package.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/01.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/02.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/03.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/04.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/05.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/06.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/07.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/08.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/09.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/10.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/11.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/12.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/13.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/14.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/15.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/16.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/17.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/18.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/19.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/20.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/21.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/22.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/23.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/kitchen/images/24.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/000.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/001.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/002.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/003.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/004.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/005.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/006.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/007.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/008.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/009.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/010.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/011.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/012.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/013.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/014.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/015.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/016.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/017.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/018.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_fern/images/019.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/000.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/001.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/002.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/003.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/004.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/005.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/006.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/007.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/008.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/009.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/010.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/011.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/012.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/013.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/014.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/015.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/016.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/017.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/018.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/019.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/020.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/021.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/022.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/023.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/llff_flower/images/024.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/room/images/no_overlap_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/room/images/no_overlap_2.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/room/images/no_overlap_3.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/room/images/no_overlap_4.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/room/images/no_overlap_5.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/room/images/no_overlap_6.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/room/images/no_overlap_7.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/room/images/no_overlap_8.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/single_cartoon/images/model_was_never_trained_on_single_image_or_cartoon.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/single_oil_painting/images/model_was_never_trained_on_single_image_or_oil_painting.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/videos/Colosseum.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/videos/fern.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/videos/great_wall.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/videos/kitchen.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/videos/pyramid.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/videos/room.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/videos/single_cartoon.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/examples/videos/single_oil_painting.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/pyproject.toml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/requirements.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/requirements_demo.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/config/default.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/config/default_dataset.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/augmentation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/base_dataset.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/composed_dataset.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/dataset_util.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/datasets/co3d.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/datasets/vkitti.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/dynamic_dataloader.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/preprocess/vkitti.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/track_util.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/data/worker_fn.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/launch.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/loss.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/checkpoint.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/distributed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/freeze.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/general.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/gradient_clip.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/logging.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/normalization.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/optimizer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/train_utils/tb_writer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/training/trainer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/distortion.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/np_to_pycolmap.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/projection.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/track_modules/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/track_modules/base_track_predictor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/track_modules/blocks.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/track_modules/modules.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/track_modules/track_refine.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/track_modules/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/track_predict.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/vggsfm_tracker.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/dependency/vggsfm_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/camera_head.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/dpt_head.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/head_act.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/track_head.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/track_modules/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/track_modules/base_track_predictor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/track_modules/blocks.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/track_modules/modules.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/track_modules/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/heads/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/attention.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/block.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/drop_path.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/layer_scale.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/mlp.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/patch_embed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/rope.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/swiglu_ffn.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/layers/vision_transformer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/models/aggregator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/models/vggt.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/utils/geometry.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/utils/helper.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/utils/load_fn.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/utils/pose_enc.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/utils/rotation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/vggt/utils/visual_track.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vggt/visual_util.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/layers/attention.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mmdetection3d/vggt/models/aggregator.py" beforeDir="false" afterPath="$PROJECT_DIR$/mmdetection3d/vggt/models/aggregator.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -314,7 +120,7 @@
     "WebServerToolWindowPanel.toolwindow.show.size": "false",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "/Users/lvxueqiang/Documents/working/DuDet/vggt",
+    "last_opened_file_path": "/Users/lvxueqiang/Documents/working/DuDet/mmdetection3d",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -325,8 +131,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/vggt" />
       <recent name="$PROJECT_DIR$/mmdetection3d" />
+      <recent name="$PROJECT_DIR$/vggt" />
       <recent name="$PROJECT_DIR$/mmdetection3d/projects" />
     </key>
   </component>
@@ -521,7 +327,15 @@
       <option name="project" value="LOCAL" />
       <updated>1782739616407</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="init">
+      <option name="closed" value="true" />
+      <created>1782784856387</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1782784856387</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
