@@ -224,14 +224,7 @@ class DinoVisionTransformer(nn.Module):
         x = x + self.interpolate_pos_encoding(x, w, h)
 
         if self.register_tokens is not None:
-            x = torch.cat(
-                (
-                    x[:, :1],
-                    self.register_tokens.expand(x.shape[0], -1, -1),
-                    x[:, 1:],
-                ),
-                dim=1,
-            )
+            x = torch.cat((x[:, :1], self.register_tokens.expand(x.shape[0], -1, -1), x[:, 1:]), dim=1)
 
         return x
 

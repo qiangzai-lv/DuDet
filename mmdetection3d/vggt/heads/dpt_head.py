@@ -67,16 +67,7 @@ class DPTHead(nn.Module):
 
         # Projection layers for each output channel from tokens.
         self.projects = nn.ModuleList(
-            [
-                nn.Conv2d(
-                    in_channels=dim_in,
-                    out_channels=oc,
-                    kernel_size=1,
-                    stride=1,
-                    padding=0,
-                )
-                for oc in out_channels
-            ]
+            [nn.Conv2d(in_channels=dim_in, out_channels=oc, kernel_size=1, stride=1, padding=0) for oc in out_channels]
         )
 
         # Resize layers for upsampling feature maps.
@@ -95,11 +86,7 @@ class DPTHead(nn.Module):
             ]
         )
 
-        self.scratch = _make_scratch(
-            out_channels,
-            features,
-            expand=False,
-        )
+        self.scratch = _make_scratch(out_channels, features, expand=False)
 
         # Attach additional modules to scratch.
         self.scratch.stem_transpose = None

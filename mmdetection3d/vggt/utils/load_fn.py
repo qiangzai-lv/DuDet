@@ -124,7 +124,7 @@ def load_and_preprocess_images(image_path_list, mode="crop"):
     # Check for empty list
     if len(image_path_list) == 0:
         raise ValueError("At least 1 image is required")
-    
+
     # Validate mode
     if mode not in ["crop", "pad"]:
         raise ValueError("Mode must be either 'crop' or 'pad'")
@@ -136,7 +136,6 @@ def load_and_preprocess_images(image_path_list, mode="crop"):
 
     # First process all images and collect their shapes
     for image_path in image_path_list:
-
         # Open image
         img = Image.open(image_path)
 
@@ -151,7 +150,7 @@ def load_and_preprocess_images(image_path_list, mode="crop"):
         img = img.convert("RGB")
 
         width, height = img.size
-        
+
         if mode == "pad":
             # Make the largest dimension 518px while maintaining aspect ratio
             if width >= height:
@@ -174,18 +173,18 @@ def load_and_preprocess_images(image_path_list, mode="crop"):
         if mode == "crop" and new_height > target_size:
             start_y = (new_height - target_size) // 2
             img = img[:, start_y : start_y + target_size, :]
-        
+
         # For pad mode, pad to make a square of target_size x target_size
         if mode == "pad":
             h_padding = target_size - img.shape[1]
             w_padding = target_size - img.shape[2]
-            
+
             if h_padding > 0 or w_padding > 0:
                 pad_top = h_padding // 2
                 pad_bottom = h_padding - pad_top
                 pad_left = w_padding // 2
                 pad_right = w_padding - pad_left
-                
+
                 # Pad with white (value=1.0)
                 img = torch.nn.functional.pad(
                     img, (pad_left, pad_right, pad_top, pad_bottom), mode="constant", value=1.0
